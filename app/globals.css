@@ -85,8 +85,7 @@ img {
 
 .hero-images,
 .hero-image,
-.hero-shade,
-.hero-flash {
+.hero-shade {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -98,7 +97,7 @@ img {
   filter: grayscale(100%) contrast(1.12) brightness(0.68);
   opacity: 0;
   transform: scale(1.04);
-  transition: opacity 720ms ease, transform 8s ease;
+  transition: opacity 900ms ease, transform 8s ease;
 }
 
 .hero-image.is-active {
@@ -111,31 +110,6 @@ img {
     linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, transparent 36%),
     linear-gradient(0deg, rgba(0, 0, 0, 0.68) 0%, transparent 52%),
     linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 62%);
-}
-
-.hero-flash {
-  z-index: 2;
-  pointer-events: none;
-  background: #fff;
-  opacity: 0;
-}
-
-.hero-flash.is-active {
-  animation: hero-flash 260ms ease-in-out both;
-}
-
-@keyframes hero-flash {
-  0% {
-    opacity: 0;
-  }
-
-  38.46% {
-    opacity: 0.3;
-  }
-
-  100% {
-    opacity: 0;
-  }
 }
 
 .hero::after {
@@ -1054,9 +1028,6 @@ img {
     transition: none;
   }
 
-  .hero-flash {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

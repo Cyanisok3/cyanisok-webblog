@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const slides = [
   {
@@ -17,51 +17,16 @@ const slides = [
   },
 ];
 
-const flashSwitchDelay = 100;
-
 export function HeroSlideshow() {
   const [active, setActive] = useState(0);
-  const [flashKey, setFlashKey] = useState(0);
-  const activeRef = useRef(0);
-  const sceneSwitchTimer = useRef<number | null>(null);
-
-  const transitionTo = useCallback((nextIndex: number) => {
-    if (nextIndex === activeRef.current) return;
-
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      activeRef.current = nextIndex;
-      setActive(nextIndex);
-      return;
-    }
-
-    if (sceneSwitchTimer.current !== null) {
-      window.clearTimeout(sceneSwitchTimer.current);
-    }
-
-    setFlashKey((current) => current + 1);
-
-    sceneSwitchTimer.current = window.setTimeout(() => {
-      activeRef.current = nextIndex;
-      setActive(nextIndex);
-      sceneSwitchTimer.current = null;
-    }, flashSwitchDelay);
-  }, []);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setInterval(
-      () => transitionTo((activeRef.current + 1) % slides.length),
+      () => setActive((current) => (current + 1) % slides.length),
       6200,
     );
     return () => window.clearInterval(timer);
-  }, [transitionTo]);
-
-  useEffect(() => {
-    return () => {
-      if (sceneSwitchTimer.current !== null) {
-        window.clearTimeout(sceneSwitchTimer.current);
-      }
-    };
   }, []);
 
   return (
@@ -78,11 +43,6 @@ export function HeroSlideshow() {
         ))}
       </div>
       <div className="hero-shade" />
-      <div
-        key={flashKey}
-        className={`hero-flash ${flashKey ? 'is-active' : ''}`}
-        aria-hidden="true"
-      />
 
       <header className="hero-header">
         <span className="edition-link">
@@ -106,7 +66,7 @@ export function HeroSlideshow() {
             key={index}
             className={index === active ? 'is-active' : ''}
             type="button"
-            onClick={() => transitionTo(index)}
+            onClick={() => setActive(index)}
             aria-label={`Show image ${index + 1}`}
             aria-current={index === active ? 'true' : undefined}
           >

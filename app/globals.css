@@ -121,7 +121,7 @@ img {
 }
 
 .hero-flash.is-active {
-  animation: hero-flash 720ms ease-out both;
+  animation: hero-flash 720ms ease-in-out both;
 }
 
 @keyframes hero-flash {
@@ -129,16 +129,8 @@ img {
     opacity: 0;
   }
 
-  18% {
-    opacity: 0.98;
-  }
-
-  34% {
-    opacity: 0.9;
-  }
-
-  58% {
-    opacity: 0.14;
+  50% {
+    opacity: 0.3;
   }
 
   100% {

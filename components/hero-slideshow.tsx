@@ -17,16 +17,34 @@ const slides = [
   },
 ];
 
+const flashSwitchDelay = 360;
+
 export function HeroSlideshow() {
   const [active, setActive] = useState(0);
   const [flashKey, setFlashKey] = useState(0);
   const activeRef = useRef(0);
+  const sceneSwitchTimer = useRef<number | null>(null);
 
   const transitionTo = useCallback((nextIndex: number) => {
     if (nextIndex === activeRef.current) return;
-    activeRef.current = nextIndex;
-    setActive(nextIndex);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      activeRef.current = nextIndex;
+      setActive(nextIndex);
+      return;
+    }
+
+    if (sceneSwitchTimer.current !== null) {
+      window.clearTimeout(sceneSwitchTimer.current);
+    }
+
     setFlashKey((current) => current + 1);
+
+    sceneSwitchTimer.current = window.setTimeout(() => {
+      activeRef.current = nextIndex;
+      setActive(nextIndex);
+      sceneSwitchTimer.current = null;
+    }, flashSwitchDelay);
   }, []);
 
   useEffect(() => {
@@ -37,6 +55,14 @@ export function HeroSlideshow() {
     );
     return () => window.clearInterval(timer);
   }, [transitionTo]);
+
+  useEffect(() => {
+    return () => {
+      if (sceneSwitchTimer.current !== null) {
+        window.clearTimeout(sceneSwitchTimer.current);
+      }
+    };
+  }, []);
 
   return (
     <section className="hero" aria-labelledby="site-title">

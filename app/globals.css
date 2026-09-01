@@ -98,7 +98,7 @@ img {
   filter: grayscale(100%) contrast(1.12) brightness(0.68);
   opacity: 0;
   transform: scale(1.04);
-  transition: transform 8s ease;
+  transition: opacity 720ms ease, transform 8s ease;
 }
 
 .hero-image.is-active {

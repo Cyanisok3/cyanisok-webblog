@@ -5,24 +5,19 @@ import { useEffect, useState } from 'react';
 const slides = [
   {
     src: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=2200&q=88',
-    alt: '云雾笼罩的山脉',
+    alt: 'Mountain peaks beneath a star-filled sky',
   },
   {
     src: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=2200&q=88',
-    alt: '湖泊与远山',
+    alt: 'A mountain lake and distant ridgeline',
   },
   {
     src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=88',
-    alt: '自然中的微光',
+    alt: 'Soft light across a mountain landscape',
   },
 ];
 
-type HeroSlideshowProps = {
-  latestTitle: string;
-  latestSlug: string;
-};
-
-export function HeroSlideshow({ latestTitle, latestSlug }: HeroSlideshowProps) {
+export function HeroSlideshow() {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -50,10 +45,10 @@ export function HeroSlideshow({ latestTitle, latestSlug }: HeroSlideshowProps) {
       <div className="hero-shade" />
 
       <header className="hero-header">
-        <a className="edition-link" href={`/writing/${latestSlug}`}>
-          Latest · {latestTitle} <span aria-hidden="true">↗</span>
-        </a>
-        <nav aria-label="主导航">
+        <span className="edition-link">
+          Chat With Me <span aria-hidden="true">→</span>
+        </span>
+        <nav aria-label="Primary navigation">
           <a href="#photography">Photography</a>
           <a href="/writing">Writing</a>
           <a href="#about">About</a>
@@ -61,23 +56,18 @@ export function HeroSlideshow({ latestTitle, latestSlug }: HeroSlideshowProps) {
       </header>
 
       <div className="hero-title">
-        <p className="eyebrow">Cyan Liu · Personal archive</p>
-        <h1 id="site-title">微光志</h1>
-        <p className="hero-intro">
-          在城市、旅途与日常之间，记录我看见的光。
-          <br />
-          Writing about systems, agents, and ways of seeing.
-        </p>
+        <h1 id="site-title">@Cyanisok</h1>
+        <p className="hero-intro">We interact with the world: we speak, we explore.</p>
       </div>
 
-      <div className="hero-controls" aria-label="切换首图">
+      <div className="hero-controls" aria-label="Choose hero image">
         {slides.map((_, index) => (
           <button
             key={index}
             className={index === active ? 'is-active' : ''}
             type="button"
             onClick={() => setActive(index)}
-            aria-label={`显示第 ${index + 1} 张照片`}
+            aria-label={`Show image ${index + 1}`}
             aria-current={index === active ? 'true' : undefined}
           >
             <span>{String(index + 1).padStart(2, '0')}</span>

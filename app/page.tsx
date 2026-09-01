@@ -6,25 +6,24 @@ import { getPosts } from '@/lib/posts';
 
 export default function Home() {
   const posts = getPosts();
-  const latest = posts[0];
 
   return (
     <main>
-      <HeroSlideshow latestTitle={latest.title} latestSlug={latest.slug} />
+      <HeroSlideshow />
 
       <section className="writing-section" id="writing" aria-labelledby="writing-title">
         <header className="section-heading">
           <div>
             <p className="section-kicker">01 · Writing</p>
-            <h2 id="writing-title">最近文章</h2>
+            <h2 id="writing-title">Selected Writing</h2>
           </div>
-          <p className="section-note">系统、AI、研究方法，以及一些视觉笔记。</p>
+          <p className="section-note">Notes on systems, AI, research methods, and visual practice.</p>
         </header>
 
         <PostList posts={posts.slice(0, 5)} />
 
         <Link className="text-link" href="/writing">
-          查看全部 {posts.length} 篇文章 <span aria-hidden="true">→</span>
+          View all {posts.length} entries <span aria-hidden="true">→</span>
         </Link>
       </section>
 
@@ -32,14 +31,14 @@ export default function Home() {
         <header className="section-heading photography-heading">
           <div>
             <p className="section-kicker">02 · Photography</p>
-            <h2 id="photography-title">相册札记</h2>
+            <h2 id="photography-title">Photo Notes</h2>
           </div>
-          <p className="section-note">照片会慢慢替换成你的个人摄影档案。</p>
+          <p className="section-note">A growing archive of photographs, places, and passing light.</p>
         </header>
 
         <div className="photo-grid">
           <figure className="photo-card photo-card-tall">
-            <img src="/archive/polaroid.webp" alt="与玩偶熊一起拍下的个人照片" />
+            <img src="/archive/polaroid.webp" alt="A personal photograph with a teddy bear" />
             <figcaption>
               <span>Private archive</span>
               <span>01 / 03</span>
@@ -48,7 +47,7 @@ export default function Home() {
           <figure className="photo-card">
             <img
               src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1500&q=88"
-              alt="山间旅行者"
+              alt="A traveller in the mountains"
             />
             <figcaption>
               <span>On the road</span>
@@ -58,7 +57,7 @@ export default function Home() {
           <figure className="photo-card">
             <img
               src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1500&q=88"
-              alt="湖泊与远山"
+              alt="A lake framed by distant mountains"
             />
             <figcaption>
               <span>Between mountains</span>
@@ -71,13 +70,17 @@ export default function Home() {
       <section className="about-section" id="about" aria-labelledby="about-title">
         <p className="section-kicker">03 · About</p>
         <div className="about-grid">
-          <h2 id="about-title">这里不是终稿，<br />而是一份持续生长的私人档案。</h2>
+          <h2 id="about-title">Not a finished portfolio,<br />but a personal archive in progress.</h2>
           <div className="about-copy">
             <p>
-              我是 Cyan Liu。这里收集我关于 AI Agent、系统工程、经验研究与视觉创作的长期笔记，也会保存旅途中偶然看见的光。
+              I&apos;m Cyan Liu. This archive gathers my ongoing notes on AI agents,
+              systems engineering, empirical research, and visual practice, alongside
+              fragments of light found while travelling.
             </p>
             <p>
-              文章内容来自我原有的技术博客，完整正文与代码示例均已保留；照片区则为你接下来整理个人摄影作品预留了位置。
+              The writing comes from my existing technical blog, with full articles and
+              code examples preserved. The photography section will continue to grow
+              with my personal work.
             </p>
           </div>
         </div>

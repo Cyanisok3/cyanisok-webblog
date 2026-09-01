@@ -4,28 +4,28 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL('https://cyan-field-notes.liuqingyang329.chatgpt.site'),
   title: {
-    default: '微光志 · Cyan Liu',
-    template: '%s · 微光志',
+    default: '@Cyanisok · Personal Archive',
+    template: '%s · @Cyanisok',
   },
-  description: '在城市、旅途与日常之间，记录我看见的光。',
+  description: 'Writing about systems, agents, research, and ways of seeing.',
   authors: [{ name: 'Cyan Liu' }],
   openGraph: {
     type: 'website',
-    title: '微光志 · Cyan Liu',
-    description: '在城市、旅途与日常之间，记录我看见的光。',
+    title: '@Cyanisok · Personal Archive',
+    description: 'Writing about systems, agents, research, and ways of seeing.',
     images: [
       {
         url: 'https://cyan-field-notes.liuqingyang329.chatgpt.site/og.png',
         width: 1200,
         height: 630,
-        alt: '微光志 · Cyan Liu',
+        alt: '@Cyanisok · Personal Archive',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: '微光志 · Cyan Liu',
-    description: '在城市、旅途与日常之间，记录我看见的光。',
+    title: '@Cyanisok · Personal Archive',
+    description: 'Writing about systems, agents, research, and ways of seeing.',
     images: ['https://cyan-field-notes.liuqingyang329.chatgpt.site/og.png'],
   },
 };
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

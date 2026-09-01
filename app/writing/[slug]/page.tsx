@@ -53,12 +53,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const post = getPost(slug);
 
-  if (!post) return { title: '文章未找到 · 微光志' };
+  if (!post) return { title: 'Article not found · @Cyanisok' };
 
   const images = post.image?.startsWith('http') ? [post.image] : [];
 
   return {
-    title: `${post.title} · 微光志`,
+    title: `${post.title} · @Cyanisok`,
     description: post.summary,
     openGraph: {
       type: 'article',
@@ -87,8 +87,8 @@ export default async function ArticlePage({ params }: PageProps) {
       <main className="inner-page">
         <div className="missing-page">
           <p className="section-kicker">404 · Not found</p>
-          <h1>这篇文章不存在。</h1>
-          <Link className="text-link" href="/writing">返回文章列表 →</Link>
+          <h1>This article does not exist.</h1>
+          <Link className="text-link" href="/writing">Back to writing →</Link>
         </div>
       </main>
     );
@@ -101,10 +101,10 @@ export default async function ArticlePage({ params }: PageProps) {
   return (
     <main className="inner-page article-page">
       <header className="inner-nav article-nav">
-        <Link className="wordmark" href="/">微光志</Link>
-        <nav aria-label="文章导航">
-          <Link href="/writing">全部文章</Link>
-          <a href="#article-body">正文</a>
+        <Link className="wordmark" href="/">@Cyanisok</Link>
+        <nav aria-label="Article navigation">
+          <Link href="/writing">All articles</Link>
+          <a href="#article-body">Article</a>
         </nav>
       </header>
 
@@ -138,7 +138,7 @@ export default async function ArticlePage({ params }: PageProps) {
         </div>
       </article>
 
-      <aside className="next-article" aria-label="下一篇文章">
+      <aside className="next-article" aria-label="Next article">
         <p className="section-kicker">Next entry</p>
         <Link href={`/writing/${nextPost.slug}`}>
           <span>{nextPost.title}</span>

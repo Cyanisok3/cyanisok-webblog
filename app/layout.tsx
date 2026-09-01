@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://cyan-field-notes.liuqingyang329.chatgpt.site'),
   title: {
     default: '微光志 · Cyan Liu',
     template: '%s · 微光志',
@@ -12,11 +13,20 @@ export const metadata: Metadata = {
     type: 'website',
     title: '微光志 · Cyan Liu',
     description: '在城市、旅途与日常之间，记录我看见的光。',
+    images: [
+      {
+        url: 'https://cyan-field-notes.liuqingyang329.chatgpt.site/og.png',
+        width: 1200,
+        height: 630,
+        alt: '微光志 · Cyan Liu',
+      },
+    ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: '微光志 · Cyan Liu',
     description: '在城市、旅途与日常之间，记录我看见的光。',
+    images: ['https://cyan-field-notes.liuqingyang329.chatgpt.site/og.png'],
   },
 };
 

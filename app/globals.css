@@ -85,7 +85,8 @@ img {
 
 .hero-images,
 .hero-image,
-.hero-shade {
+.hero-shade,
+.hero-flash {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -97,7 +98,7 @@ img {
   filter: grayscale(100%) contrast(1.12) brightness(0.68);
   opacity: 0;
   transform: scale(1.04);
-  transition: opacity 1.4s ease, transform 8s ease;
+  transition: transform 8s ease;
 }
 
 .hero-image.is-active {
@@ -110,6 +111,39 @@ img {
     linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, transparent 36%),
     linear-gradient(0deg, rgba(0, 0, 0, 0.68) 0%, transparent 52%),
     linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 62%);
+}
+
+.hero-flash {
+  z-index: 2;
+  pointer-events: none;
+  background: #fff;
+  opacity: 0;
+}
+
+.hero-flash.is-active {
+  animation: hero-flash 720ms ease-out both;
+}
+
+@keyframes hero-flash {
+  0% {
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.98;
+  }
+
+  34% {
+    opacity: 0.9;
+  }
+
+  58% {
+    opacity: 0.14;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 .hero::after {
@@ -1019,6 +1053,17 @@ img {
   .next-article {
     margin-right: 22px;
     margin-left: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-image {
+    transform: none;
+    transition: none;
+  }
+
+  .hero-flash {
+    display: none;
   }
 }
 

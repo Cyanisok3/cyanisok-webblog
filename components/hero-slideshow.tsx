@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const slides = [
   {
@@ -19,15 +19,24 @@ const slides = [
 
 export function HeroSlideshow() {
   const [active, setActive] = useState(0);
+  const [flashKey, setFlashKey] = useState(0);
+  const activeRef = useRef(0);
+
+  const transitionTo = useCallback((nextIndex: number) => {
+    if (nextIndex === activeRef.current) return;
+    activeRef.current = nextIndex;
+    setActive(nextIndex);
+    setFlashKey((current) => current + 1);
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setInterval(
-      () => setActive((current) => (current + 1) % slides.length),
+      () => transitionTo((activeRef.current + 1) % slides.length),
       6200,
     );
     return () => window.clearInterval(timer);
-  }, []);
+  }, [transitionTo]);
 
   return (
     <section className="hero" aria-labelledby="site-title">
@@ -43,6 +52,11 @@ export function HeroSlideshow() {
         ))}
       </div>
       <div className="hero-shade" />
+      <div
+        key={flashKey}
+        className={`hero-flash ${flashKey ? 'is-active' : ''}`}
+        aria-hidden="true"
+      />
 
       <header className="hero-header">
         <span className="edition-link">
@@ -66,7 +80,7 @@ export function HeroSlideshow() {
             key={index}
             className={index === active ? 'is-active' : ''}
             type="button"
-            onClick={() => setActive(index)}
+            onClick={() => transitionTo(index)}
             aria-label={`Show image ${index + 1}`}
             aria-current={index === active ? 'true' : undefined}
           >

@@ -138,7 +138,7 @@ img {
 .edition-link,
 .hero-header nav a {
   position: relative;
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-size: clamp(1.3125rem, 2.625vw, 1.875rem);
   letter-spacing: 0.01em;
   line-height: 1;
   text-shadow: 0 1px 18px rgba(0, 0, 0, 0.3);
@@ -181,7 +181,11 @@ img {
   z-index: 3;
   bottom: var(--hero-edge);
   left: var(--hero-edge);
+  display: flex;
+  width: max-content;
   max-width: min(760px, calc(100% - var(--hero-edge) - var(--hero-edge)));
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .section-kicker {
@@ -195,17 +199,19 @@ img {
 .hero-title h1 {
   margin: 0;
   font-family: 'RN', var(--serif);
-  font-size: clamp(3.5rem, 7vw, 5rem);
+  font-size: clamp(2.8rem, 5.6vw, 4rem);
   font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 0.96;
+  text-align: right;
 }
 
 .hero-intro {
   margin: 14px 0 0;
-  font-size: clamp(0.82rem, 1.1vw, 1rem);
+  font-size: clamp(0.66rem, 0.9vw, 0.8rem);
   line-height: 1.45;
   opacity: 0.8;
+  text-align: right;
   white-space: nowrap;
 }
 
@@ -845,7 +851,7 @@ img {
 
   .edition-link,
   .hero-header nav a {
-    font-size: 1.35rem;
+    font-size: 1rem;
   }
 
   .hero-title {
@@ -853,11 +859,11 @@ img {
   }
 
   .hero-title h1 {
-    font-size: clamp(2.7rem, 12vw, 3.5rem);
+    font-size: clamp(2.2rem, 9.6vw, 2.8rem);
   }
 
   .hero-intro {
-    font-size: clamp(0.7rem, 3.25vw, 0.82rem);
+    font-size: clamp(0.62rem, 2.6vw, 0.7rem);
   }
 
   .hero-controls {

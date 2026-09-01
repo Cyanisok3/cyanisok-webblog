@@ -17,7 +17,7 @@ const slides = [
   },
 ];
 
-const flashSwitchDelay = 180;
+const flashSwitchDelay = 100;
 
 export function HeroSlideshow() {
   const [active, setActive] = useState(0);

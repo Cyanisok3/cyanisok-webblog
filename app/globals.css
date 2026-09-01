@@ -71,6 +71,8 @@ img {
 
 .hero {
   --hero-edge: clamp(24px, 3vw, 42px);
+  --hero-top-edge: clamp(28.8px, 3.6vw, 50.4px);
+  --hero-side-edge: clamp(36px, 4.5vw, 63px);
   position: relative;
   min-height: 680px;
   height: 100svh;
@@ -128,7 +130,7 @@ img {
   width: 100%;
   align-items: flex-start;
   justify-content: space-between;
-  padding: var(--hero-edge);
+  padding: var(--hero-top-edge) var(--hero-side-edge);
 }
 
 .edition-link {
@@ -138,10 +140,14 @@ img {
 .edition-link,
 .hero-header nav a {
   position: relative;
-  font-size: clamp(1.3125rem, 2.625vw, 1.875rem);
+  font-size: clamp(1.18rem, 2.36vw, 1.69rem);
   letter-spacing: 0.01em;
   line-height: 1;
   text-shadow: 0 1px 18px rgba(0, 0, 0, 0.3);
+}
+
+.hero-header nav a {
+  font-family: 'RN', var(--serif);
 }
 
 .hero-header nav a::after,
@@ -185,7 +191,7 @@ img {
   width: max-content;
   max-width: min(760px, calc(100% - var(--hero-edge) - var(--hero-edge)));
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 .section-kicker {
@@ -203,15 +209,15 @@ img {
   font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 0.96;
-  text-align: right;
+  text-align: left;
 }
 
 .hero-intro {
   margin: 14px 0 0;
-  font-size: clamp(0.66rem, 0.9vw, 0.8rem);
+  font-size: clamp(0.86rem, 1.17vw, 1.04rem);
   line-height: 1.45;
   opacity: 0.8;
-  text-align: right;
+  text-align: left;
   white-space: nowrap;
 }
 
@@ -842,6 +848,8 @@ img {
 @media (max-width: 680px) {
   .hero {
     --hero-edge: 22px;
+    --hero-top-edge: 26.4px;
+    --hero-side-edge: 33px;
     min-height: 640px;
   }
 
@@ -851,7 +859,7 @@ img {
 
   .edition-link,
   .hero-header nav a {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .hero-title {

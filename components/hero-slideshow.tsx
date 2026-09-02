@@ -4,16 +4,28 @@ import { useEffect, useState } from 'react';
 
 const slides = [
   {
-    src: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=2200&q=88',
-    alt: 'Mountain peaks beneath a star-filled sky',
+    src: '/resources/zibo.JPG',
+    alt: 'A wheat field in Zibo',
   },
   {
-    src: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=2200&q=88',
-    alt: 'A mountain lake and distant ridgeline',
+    src: '/resources/hainan.JPG',
+    alt: 'Soft tropical foliage in Hainan',
   },
   {
-    src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=88',
-    alt: 'Soft light across a mountain landscape',
+    src: '/resources/shanghai.JPG',
+    alt: 'City lights in Shanghai',
+  },
+  {
+    src: '/resources/yantai.JPG',
+    alt: 'A city crowd in Yantai',
+  },
+  {
+    src: '/resources/ningbo.JPG',
+    alt: 'A quiet horizon in Ningbo',
+  },
+  {
+    src: '/resources/unnc.JPG',
+    alt: 'Grass and soft light at UNNC',
   },
 ];
 
@@ -58,21 +70,6 @@ export function HeroSlideshow() {
       <div className="hero-title">
         <h1 id="site-title">@Cyanisok</h1>
         <p className="hero-intro">We interact with the world: we speak, we explore.</p>
-      </div>
-
-      <div className="hero-controls" aria-label="Choose hero image">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            className={index === active ? 'is-active' : ''}
-            type="button"
-            onClick={() => setActive(index)}
-            aria-label={`Show image ${index + 1}`}
-            aria-current={index === active ? 'true' : undefined}
-          >
-            <span>{String(index + 1).padStart(2, '0')}</span>
-          </button>
-        ))}
       </div>
     </section>
   );

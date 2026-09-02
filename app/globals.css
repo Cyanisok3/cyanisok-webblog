@@ -226,37 +226,6 @@ img {
   white-space: nowrap;
 }
 
-.hero-controls {
-  position: absolute;
-  z-index: 3;
-  right: var(--hero-edge);
-  bottom: var(--hero-edge);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.hero-controls button {
-  display: grid;
-  width: 42px;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.34);
-  background: transparent;
-  color: rgba(255, 255, 255, 0.54);
-  cursor: pointer;
-  font-family: var(--sans);
-  font-size: 0.62rem;
-  place-items: start center;
-  transition: border-color 220ms ease, color 220ms ease;
-}
-
-.hero-controls button.is-active {
-  border-color: var(--white);
-  color: var(--white);
-}
-
 .writing-section,
 .photography-section,
 .about-section {
@@ -879,14 +848,6 @@ img {
 
   .hero-intro {
     font-size: clamp(0.62rem, 2.6vw, 0.7rem);
-  }
-
-  .hero-controls {
-    bottom: calc(var(--hero-edge) + 56px);
-  }
-
-  .hero-controls button {
-    width: 34px;
   }
 
   .writing-section,

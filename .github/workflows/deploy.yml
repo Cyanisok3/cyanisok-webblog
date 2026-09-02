@@ -34,21 +34,44 @@ jobs:
 
           test -f "$release_dir/package-lock.json"
           test -f "$release_dir/.github/workflows/deploy.yml"
-          ln -sfn "$release_dir" "$deploy_root/current"
 
       - name: Build, verify, and publish
         run: |
           set -euo pipefail
 
-          cd "$(readlink -f /home/ubuntu/cyanisok-webblog/current)"
+          deploy_root="/home/ubuntu/cyanisok-webblog"
+          release_dir="$deploy_root/releases/$GITHUB_SHA-$GITHUB_RUN_ATTEMPT"
+          node_version="22.22.0"
+          node_dir="/home/ubuntu/.local/node-v$node_version-linux-x64"
+          node_archive="$RUNNER_TEMP/node-v$node_version-linux-x64.tar.xz"
+
+          if [[ ! -x "$node_dir/bin/node" ]]; then
+            curl -fsSL --retry 5 --retry-all-errors \
+              --connect-timeout 20 --max-time 300 \
+              -o "$node_archive" \
+              "https://nodejs.org/dist/v$node_version/node-v$node_version-linux-x64.tar.xz"
+            echo "9aa8e9d2298ab68c600bd6fb86a6c13bce11a4eca1ba9b39d79fa021755d7c37  $node_archive" | sha256sum -c -
+            mkdir -p /home/ubuntu/.local
+            tar xJf "$node_archive" -C /home/ubuntu/.local
+            rm "$node_archive"
+          fi
+
+          export PATH="$node_dir/bin:$PATH"
+          cd "$release_dir"
 
           lock_file="/tmp/cyanisok-webblog-deploy.lock"
           exec 9>"$lock_file"
           flock -w 1800 9
 
-          docker compose -f deploy/vps/compose.yaml config --quiet
-          docker compose -f deploy/vps/compose.yaml build
-          docker compose -f deploy/vps/compose.yaml up -d --force-recreate
+          npm ci
+          npm run build
+
+          previous_release="$(readlink -f "$deploy_root/current" || true)"
+          ln -sfn "$release_dir" "$deploy_root/current"
+          sudo install -m 0644 deploy/systemd/cyanisok-webblog.service /etc/systemd/system/cyanisok-webblog.service
+          sudo systemctl daemon-reload
+          docker rm -f cyan-field-notes >/dev/null 2>&1 || true
+          sudo systemctl restart cyanisok-webblog
 
           for attempt in {1..45}; do
             if curl -fsS http://127.0.0.1:3001/ >/dev/null &&
@@ -57,7 +80,13 @@ jobs:
               break
             fi
             if [[ "$attempt" == "45" ]]; then
-              docker compose -f deploy/vps/compose.yaml logs --tail=200
+              sudo journalctl -u cyanisok-webblog -n 200 --no-pager
+              if [[ -n "$previous_release" && -d "$previous_release" ]]; then
+                ln -sfn "$previous_release" "$deploy_root/current"
+                sudo systemctl restart cyanisok-webblog
+              else
+                sudo systemctl stop cyanisok-webblog
+              fi
               exit 1
             fi
             sleep 2
@@ -85,4 +114,4 @@ jobs:
 
           sudo rm -f "$nginx_backup"
           curl -kfsS https://127.0.0.1/ -H "Host: cyanisok.cn" >/dev/null
-          docker compose -f deploy/vps/compose.yaml ps
+          sudo systemctl --no-pager --full status cyanisok-webblog

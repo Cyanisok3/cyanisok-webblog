@@ -1,9 +1,0 @@
-.git
-.next
-.wrangler
-dist
-node_modules
-npm-debug.log*
-.DS_Store
-skills
-work

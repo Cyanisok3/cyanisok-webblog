@@ -1,0 +1,20 @@
+[Unit]
+Description=Cyanisok web blog
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/cyanisok-webblog/current
+Environment=HOME=/home/ubuntu
+Environment=NODE_ENV=production
+Environment=PATH=/home/ubuntu/.local/node-v22.22.0-linux-x64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/ubuntu/cyanisok-webblog/current/node_modules/.bin/wrangler dev --config dist/server/wrangler.json --ip 127.0.0.1 --port 3001 --log-level warn
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

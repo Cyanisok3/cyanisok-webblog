@@ -16,12 +16,31 @@ jobs:
     runs-on: [self-hosted, linux, x64, cyanisok-webblog]
 
     steps:
-      - name: Check out source
-        uses: actions/checkout@v4
+      - name: Prepare exact source revision
+        run: |
+          set -euo pipefail
+
+          deploy_root="/home/ubuntu/cyanisok-webblog"
+          release_dir="$deploy_root/releases/$GITHUB_SHA-$GITHUB_RUN_ATTEMPT"
+          archive="$RUNNER_TEMP/cyanisok-webblog-$GITHUB_SHA.tar.gz"
+
+          mkdir -p "$release_dir"
+          curl -fsSL --retry 5 --retry-all-errors \
+            --connect-timeout 20 --max-time 300 \
+            -o "$archive" \
+            "https://codeload.github.com/Cyanisok3/cyanisok-webblog/tar.gz/$GITHUB_SHA"
+          tar xzf "$archive" --strip-components=1 -C "$release_dir"
+          rm "$archive"
+
+          test -f "$release_dir/package-lock.json"
+          test -f "$release_dir/.github/workflows/deploy.yml"
+          ln -sfn "$release_dir" "$deploy_root/current"
 
       - name: Build, verify, and publish
         run: |
           set -euo pipefail
+
+          cd "$(readlink -f /home/ubuntu/cyanisok-webblog/current)"
 
           lock_file="/tmp/cyanisok-webblog-deploy.lock"
           exec 9>"$lock_file"

@@ -70,6 +70,7 @@ jobs:
           ln -sfn "$release_dir" "$deploy_root/current"
           sudo install -m 0644 deploy/systemd/cyanisok-webblog.service /etc/systemd/system/cyanisok-webblog.service
           sudo systemctl daemon-reload
+          sudo systemctl enable cyanisok-webblog >/dev/null
           docker rm -f cyan-field-notes >/dev/null 2>&1 || true
           sudo systemctl restart cyanisok-webblog
 
@@ -95,6 +96,17 @@ jobs:
           nginx_source="deploy/nginx/cyanisok.cn.conf"
           nginx_target="/www/server/panel/vhost/nginx/cyanisok.cn.conf"
           nginx_backup="/tmp/cyanisok-webblog-nginx-backup.$$"
+
+          reload_nginx() {
+            if command -v systemctl >/dev/null 2>&1 &&
+               sudo systemctl is-active --quiet nginx; then
+              sudo systemctl reload nginx
+              return
+            fi
+
+            sudo nginx -s reload
+          }
+
           sudo cp "$nginx_target" "$nginx_backup"
           sudo install -m 0644 "$nginx_source" "$nginx_target"
 
@@ -104,10 +116,10 @@ jobs:
             exit 1
           fi
 
-          if ! sudo systemctl reload nginx; then
+          if ! reload_nginx; then
             sudo install -m 0644 "$nginx_backup" "$nginx_target"
             sudo nginx -t
-            sudo systemctl reload nginx
+            reload_nginx
             sudo rm -f "$nginx_backup"
             exit 1
           fi

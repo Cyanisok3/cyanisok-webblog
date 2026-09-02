@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:22-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -8,12 +8,11 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:22-alpine AS runner
+FROM node:22-bookworm-slim AS runner
 
 WORKDIR /app
 
-RUN apk add --no-cache gcompat libstdc++ \
-  && npm install --global wrangler@4.92.0
+RUN npm install --global wrangler@4.92.0
 
 COPY --from=builder /app/dist ./dist
 

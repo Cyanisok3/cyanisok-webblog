@@ -2,20 +2,22 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://cyan-field-notes.liuqingyang329.chatgpt.site'),
+  metadataBase: new URL('https://cyanisok.cn'),
   title: {
     default: '@Cyanisok · Personal Archive',
     template: '%s · @Cyanisok',
   },
   description: 'Writing about systems, agents, research, and ways of seeing.',
   authors: [{ name: 'Cyan Liu' }],
+  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
+    url: 'https://cyanisok.cn',
     title: '@Cyanisok · Personal Archive',
     description: 'Writing about systems, agents, research, and ways of seeing.',
     images: [
       {
-        url: 'https://cyan-field-notes.liuqingyang329.chatgpt.site/og.png',
+        url: '/og.png',
         width: 1200,
         height: 630,
         alt: '@Cyanisok · Personal Archive',
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '@Cyanisok · Personal Archive',
     description: 'Writing about systems, agents, research, and ways of seeing.',
-    images: ['https://cyan-field-notes.liuqingyang329.chatgpt.site/og.png'],
+    images: ['/og.png'],
   },
 };
 

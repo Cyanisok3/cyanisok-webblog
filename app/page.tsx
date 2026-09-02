@@ -11,18 +11,18 @@ export default function Home() {
     <main>
       <HeroSlideshow />
 
-      <section className="writing-section" id="writing" aria-labelledby="writing-title">
+      <section className="writing-section" id="blog" aria-labelledby="blog-title">
         <header className="section-heading">
           <div>
-            <p className="section-kicker">01 · Writing</p>
-            <h2 id="writing-title">Selected Writing</h2>
+            <p className="section-kicker">01 · Blog</p>
+            <h2 id="blog-title">Selected Posts</h2>
           </div>
           <p className="section-note">Notes on systems, AI, research methods, and visual practice.</p>
         </header>
 
         <PostList posts={posts.slice(0, 5)} />
 
-        <Link className="text-link" href="/writing">
+        <Link className="text-link" href="/blog">
           View all {posts.length} entries <span aria-hidden="true">→</span>
         </Link>
       </section>
@@ -78,7 +78,7 @@ export default function Home() {
               fragments of light found while travelling.
             </p>
             <p>
-              The writing comes from my existing technical blog, with full articles and
+              The blog brings together my existing technical writing, with full articles and
               code examples preserved. The photography section will continue to grow
               with my personal work.
             </p>

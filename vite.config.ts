@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/postcss';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import { rehypeHeadingIds } from './lib/toc';
+import { remarkCodeMeta } from './lib/remark-code-meta';
 import vinext from 'vinext';
 import { defineConfig } from 'vite';
 import hostingConfig from './.openai/hosting.json';
@@ -47,22 +49,33 @@ export default defineConfig(async () => {
 
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
   const { cloudflare } = await import('@cloudflare/vite-plugin');
+  const mdxPlugin = mdx({
+    remarkPlugins: [
+      remarkFrontmatter,
+      [remarkMdxFrontmatter, { name: 'frontmatter' }],
+      remarkGfm,
+      remarkCodeMeta,
+    ],
+    rehypePlugins: [rehypeHeadingIds],
+  });
+  const transformMdx = mdxPlugin.transform as NonNullable<typeof mdxPlugin.transform>;
 
   return {
     css: { postcss: { plugins: [tailwindcss()] } },
+    optimizeDeps: {
+      exclude: ['motion', 'motion/react', 'framer-motion'],
+    },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,
     plugins: [
       {
-        ...mdx({
-          remarkPlugins: [
-            remarkFrontmatter,
-            [remarkMdxFrontmatter, { name: 'frontmatter' }],
-            remarkGfm,
-          ],
-        }),
+        ...mdxPlugin,
         enforce: 'pre' as const,
+        transform(code: string, id: string, options: unknown) {
+          if (id.includes('?raw')) return null;
+          return (transformMdx as any).call(this, code, id, options);
+        },
       },
       vinext(),
       sites(),

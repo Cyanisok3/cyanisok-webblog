@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className="site-footer">
       <p>© 2026 Cyan Liu</p>
       <div>
-        <Link href="/writing">Writing</Link>
+        <Link href="/blog">Blog</Link>
         <a href="https://github.com/Cyanisok3" target="_blank" rel="noreferrer">GitHub</a>
       </div>
     </footer>

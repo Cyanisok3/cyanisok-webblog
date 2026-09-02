@@ -1,4 +1,5 @@
 import type { ComponentType, ElementType } from 'react';
+import { extractTableOfContents } from '@/lib/toc';
 
 type MdxProps = {
   components?: Record<string, ElementType>;
@@ -11,6 +12,8 @@ type Frontmatter = {
   publishedAt?: string;
   updatedAt?: string;
   image?: string;
+  category?: string;
+  tags?: string[];
 };
 
 type MdxModule = {
@@ -27,7 +30,9 @@ export type Post = {
   updatedAt?: string;
   image?: string;
   category: string;
+  tags?: string[];
   readingMinutes: number;
+  toc: import('@/lib/toc').TocItem[];
   Content: ComponentType<MdxProps>;
 };
 
@@ -35,36 +40,33 @@ const compiledPosts = import.meta.glob('../content/*.mdx', {
   eager: true,
 }) as Record<string, MdxModule>;
 
-const categories: Record<string, string> = {
-  'ai-agent-fundamentals': 'Agentic AI',
-  'ai-infra': 'AI Infrastructure',
-  'dependency-management': 'Engineering',
-  'epirical-research-prerequisites': 'Research',
-  'film-editing-basics': 'Visual Notes',
-  'git-workflow-guide': 'Engineering',
-  'grind-leetcode': 'Algorithms',
-  'grind-leetcode2': 'Algorithms',
-  'mdx-writing-guide': 'Writing',
-  'network-programming': 'Systems',
-};
+const rawPosts = import.meta.glob('../content/*.mdx', {
+  eager: true,
+  import: 'default',
+  query: '?raw',
+}) as Record<string, unknown>;
 
-const readingTimes: Record<string, number> = {
-  'ai-agent-fundamentals': 8,
-  'ai-infra': 3,
-  'dependency-management': 1,
-  'epirical-research-prerequisites': 4,
-  'film-editing-basics': 2,
-  'git-workflow-guide': 2,
-  'grind-leetcode': 27,
-  'grind-leetcode2': 3,
-  'mdx-writing-guide': 5,
-  'network-programming': 8,
-};
+function getReadingMinutes(content: string) {
+  const readable = content.replace(/```[\s\S]*?```/g, ' ').replace(/`[^`]*`/g, ' ');
+  const latin = readable.match(/[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*/g)?.length ?? 0;
+  const cjk = readable.match(/[\u3400-\u9fff]/g)?.length ?? 0;
+  return Math.max(1, Math.ceil((latin + cjk / 2) / 220));
+}
+
+function getRawContent(value: unknown) {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object' && 'default' in value) {
+    const fallback = (value as { default?: unknown }).default;
+    if (typeof fallback === 'string') return fallback;
+  }
+  return '';
+}
 
 const posts = Object.entries(compiledPosts)
   .map(([path, module]) => {
     const slug = path.split('/').pop()?.replace(/\.mdx$/, '') ?? '';
     const data = module.frontmatter ?? {};
+    const raw = getRawContent(rawPosts[path]);
 
     return {
       slug,
@@ -74,8 +76,10 @@ const posts = Object.entries(compiledPosts)
       publishedAt: String(data.publishedAt ?? ''),
       updatedAt: data.updatedAt ? String(data.updatedAt) : undefined,
       image: data.image ? String(data.image) : undefined,
-      category: categories[slug] ?? 'Notes',
-      readingMinutes: readingTimes[slug] ?? 5,
+      category: String(data.category ?? 'Notes'),
+      tags: Array.isArray(data.tags) ? data.tags.map(String) : undefined,
+      readingMinutes: getReadingMinutes(raw),
+      toc: extractTableOfContents(raw),
       Content: module.default,
     } satisfies Post;
   })
@@ -94,11 +98,11 @@ export function formatDate(date: string) {
 
   if (Number.isNaN(parsed.getTime())) return date;
 
-  return new Intl.DateTimeFormat('zh-CN', {
+  return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
   })
-    .format(parsed)
-    .replaceAll('/', '.');
+    .format(parsed);
 }

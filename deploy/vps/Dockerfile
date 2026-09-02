@@ -1,8 +1,9 @@
-FROM node:22-bookworm-slim
+FROM node:22-alpine
 
 WORKDIR /app
 
-RUN npm install --global wrangler@4.92.0
+RUN apk add --no-cache gcompat libstdc++ \
+  && npm install --global wrangler@4.92.0
 
 COPY dist ./dist
 

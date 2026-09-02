@@ -590,7 +590,15 @@ img {
 
 .blog-year-posts {
   display: grid;
-  gap: clamp(48px, 6vw, 78px);
+  gap: 0;
+}
+
+.blog-entry-reveal {
+  padding-bottom: clamp(48px, 6vw, 78px);
+}
+
+.blog-entry-reveal:last-child {
+  padding-bottom: 0;
 }
 
 .blog-entry {
@@ -647,7 +655,9 @@ img {
   transform: translate(3px, -3px);
 }
 
-.blog-year-posts:has(.blog-entry:hover) .blog-entry:not(:hover) {
+.blog-year-posts:has(.blog-entry-reveal:hover)
+  .blog-entry-reveal:not(:hover)
+  .blog-entry {
   opacity: 0.38;
 }
 

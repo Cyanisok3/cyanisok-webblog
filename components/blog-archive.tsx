@@ -21,7 +21,11 @@ export function BlogArchive({ posts }: { posts: Post[] }) {
           <h2 id={`year-${year}`}>{year}</h2>
           <div className="blog-year-posts">
             {entries.map((post, index) => (
-              <Reveal delay={Math.min(index * 0.06, 0.18)} key={post.slug}>
+              <Reveal
+                className="blog-entry-reveal"
+                delay={Math.min(index * 0.06, 0.18)}
+                key={post.slug}
+              >
                 <Link className="blog-entry" href={`/blog/${post.slug}`}>
                   <span className="blog-entry-main">
                     <strong>{post.title}</strong>

@@ -1,11 +1,21 @@
-FROM node:22-alpine
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
 RUN apk add --no-cache gcompat libstdc++ \
   && npm install --global wrangler@4.92.0
 
-COPY dist ./dist
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
 

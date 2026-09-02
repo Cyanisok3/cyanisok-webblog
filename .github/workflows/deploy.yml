@@ -1,0 +1,69 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: cyanisok-webblog-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy web blog
+    runs-on: [self-hosted, linux, x64, cyanisok-webblog]
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Build, verify, and publish
+        run: |
+          set -euo pipefail
+
+          lock_file="/tmp/cyanisok-webblog-deploy.lock"
+          exec 9>"$lock_file"
+          flock -w 1800 9
+
+          docker compose -f deploy/vps/compose.yaml config --quiet
+          docker compose -f deploy/vps/compose.yaml build
+          docker compose -f deploy/vps/compose.yaml up -d --force-recreate
+
+          for attempt in {1..45}; do
+            if curl -fsS http://127.0.0.1:3001/ >/dev/null &&
+               curl -fsS http://127.0.0.1:3001/blog >/dev/null &&
+               curl -fsS http://127.0.0.1:3001/blog/mdx-writing-guide >/dev/null; then
+              break
+            fi
+            if [[ "$attempt" == "45" ]]; then
+              docker compose -f deploy/vps/compose.yaml logs --tail=200
+              exit 1
+            fi
+            sleep 2
+          done
+
+          nginx_source="deploy/nginx/cyanisok.cn.conf"
+          nginx_target="/www/server/panel/vhost/nginx/cyanisok.cn.conf"
+          nginx_backup="/tmp/cyanisok-webblog-nginx-backup.$$"
+          sudo cp "$nginx_target" "$nginx_backup"
+          sudo install -m 0644 "$nginx_source" "$nginx_target"
+
+          if ! sudo nginx -t; then
+            sudo install -m 0644 "$nginx_backup" "$nginx_target"
+            sudo rm -f "$nginx_backup"
+            exit 1
+          fi
+
+          if ! sudo systemctl reload nginx; then
+            sudo install -m 0644 "$nginx_backup" "$nginx_target"
+            sudo nginx -t
+            sudo systemctl reload nginx
+            sudo rm -f "$nginx_backup"
+            exit 1
+          fi
+
+          sudo rm -f "$nginx_backup"
+          curl -kfsS https://127.0.0.1/ -H "Host: cyanisok.cn" >/dev/null
+          docker compose -f deploy/vps/compose.yaml ps

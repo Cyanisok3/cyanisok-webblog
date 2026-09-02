@@ -4,27 +4,27 @@ import { useEffect, useState } from 'react';
 
 const slides = [
   {
-    src: '/resources/zibo.JPG',
+    src: '/resources/zibo.webp',
     alt: 'A wheat field in Zibo',
   },
   {
-    src: '/resources/hainan.JPG',
+    src: '/resources/hainan.webp',
     alt: 'Soft tropical foliage in Hainan',
   },
   {
-    src: '/resources/shanghai.JPG',
+    src: '/resources/shanghai.webp',
     alt: 'City lights in Shanghai',
   },
   {
-    src: '/resources/yantai.JPG',
+    src: '/resources/yantai.webp',
     alt: 'A city crowd in Yantai',
   },
   {
-    src: '/resources/ningbo.JPG',
+    src: '/resources/ningbo.webp',
     alt: 'A quiet horizon in Ningbo',
   },
   {
-    src: '/resources/unnc.JPG',
+    src: '/resources/unnc.webp',
     alt: 'Grass and soft light at UNNC',
   },
 ];
@@ -41,6 +41,10 @@ export function HeroSlideshow() {
     return () => window.clearInterval(timer);
   }, []);
 
+  // Mount only the current slide and preload the next one, so the initial
+  // page load fetches a single image instead of all six at once.
+  const next = (active + 1) % slides.length;
+
   return (
     <section className="hero" aria-labelledby="site-title">
       <div className="hero-images" aria-live="off">
@@ -48,9 +52,11 @@ export function HeroSlideshow() {
           <img
             key={slide.src}
             className={`hero-image ${index === active ? 'is-active' : ''}`}
-            src={slide.src}
+            src={index === active || index === next ? slide.src : undefined}
             alt={index === active ? slide.alt : ''}
             aria-hidden={index !== active}
+            decoding="async"
+            fetchPriority={index === active ? 'high' : 'auto'}
           />
         ))}
       </div>

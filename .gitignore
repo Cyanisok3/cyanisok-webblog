@@ -16,6 +16,9 @@
 /.vinext/
 /out/
 
+# build artifacts
+*.tsbuildinfo
+
 # misc
 .DS_Store
 *.pem

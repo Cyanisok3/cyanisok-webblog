@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { PostList } from '@/components/post-list';
 import { SiteFooter } from '@/components/site-footer';
 import { getPosts } from '@/lib/posts';
@@ -14,11 +13,11 @@ export default function WritingArchive() {
   return (
     <main className="inner-page">
       <header className="inner-nav">
-        <Link className="wordmark" href="/">@Cyanisok</Link>
+        <a className="wordmark" href="/">@Cyanisok</a>
         <nav aria-label="Writing navigation">
-          <Link href="/">Home</Link>
-          <a href="/#photography">Photography</a>
-          <a href="/#about">About</a>
+          <a href="/">Home</a>
+          <a href="/">Photography</a>
+          <a href="/">About</a>
         </nav>
       </header>
 

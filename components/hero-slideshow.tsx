@@ -67,9 +67,9 @@ export function HeroSlideshow() {
           Chat With Me <span aria-hidden="true">→</span>
         </span>
         <nav aria-label="Primary navigation">
-          <a href="#photography">Photography</a>
+          <a href="/">Photography</a>
           <a href="/blog">Blog</a>
-          <a href="#about">About</a>
+          <a href="/">About</a>
         </nav>
       </header>
 

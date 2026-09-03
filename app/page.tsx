@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { HeroSlideshow } from '@/components/hero-slideshow';
 import { PostList } from '@/components/post-list';
 import { SiteFooter } from '@/components/site-footer';
@@ -22,9 +21,9 @@ export default function Home() {
 
         <PostList posts={posts.slice(0, 5)} />
 
-        <Link className="text-link" href="/blog">
+        <a className="text-link" href="/blog">
           View all {posts.length} entries <span aria-hidden="true">→</span>
-        </Link>
+        </a>
       </section>
 
       <section className="photography-section" id="photography" aria-labelledby="photography-title">

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { BlogArchive } from '@/components/blog-archive';
 import { SiteFooter } from '@/components/site-footer';
 import { Reveal } from '@/components/reveal';
@@ -23,11 +22,11 @@ export default function BlogPage() {
   return (
     <main className="inner-page blog-page">
       <header className="inner-nav">
-        <Link className="wordmark" href="/">@Cyanisok</Link>
+        <a className="wordmark" href="/">@Cyanisok</a>
         <nav aria-label="Blog navigation">
-          <Link href="/">Home</Link>
-          <a href="/#photography">Photography</a>
-          <a href="/#about">About</a>
+          <a href="/">Home</a>
+          <a href="/">Photography</a>
+          <a href="/">About</a>
         </nav>
       </header>
 

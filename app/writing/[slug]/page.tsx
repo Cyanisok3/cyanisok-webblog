@@ -1,6 +1,5 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { SiteFooter } from '@/components/site-footer';
 import { formatDate, getPost, getPosts } from '@/lib/posts';
 
@@ -88,7 +87,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <div className="missing-page">
           <p className="section-kicker">404 · Not found</p>
           <h1>This article does not exist.</h1>
-          <Link className="text-link" href="/writing">Back to writing →</Link>
+          <a className="text-link" href="/writing">Back to writing →</a>
         </div>
       </main>
     );
@@ -101,9 +100,9 @@ export default async function ArticlePage({ params }: PageProps) {
   return (
     <main className="inner-page article-page">
       <header className="inner-nav article-nav">
-        <Link className="wordmark" href="/">@Cyanisok</Link>
+        <a className="wordmark" href="/">@Cyanisok</a>
         <nav aria-label="Article navigation">
-          <Link href="/writing">All articles</Link>
+          <a href="/writing">All articles</a>
           <a href="#article-body">Article</a>
         </nav>
       </header>
@@ -130,7 +129,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <div className="article-layout" id="article-body">
           <aside className="article-side">
             <span>Archive / {String(currentIndex + 1).padStart(2, '0')}</span>
-            <Link href="/writing">← Back to writing</Link>
+            <a href="/writing">← Back to writing</a>
           </aside>
           <div className="prose">
             <post.Content components={mdxComponents} />
@@ -140,10 +139,10 @@ export default async function ArticlePage({ params }: PageProps) {
 
       <aside className="next-article" aria-label="Next article">
         <p className="section-kicker">Next entry</p>
-        <Link href={`/writing/${nextPost.slug}`}>
+        <a href={`/writing/${nextPost.slug}`}>
           <span>{nextPost.title}</span>
           <span aria-hidden="true">→</span>
-        </Link>
+        </a>
       </aside>
 
       <SiteFooter />

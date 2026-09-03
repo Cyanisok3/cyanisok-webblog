@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Reveal } from '@/components/reveal';
 import { formatDate, type Post } from '@/lib/posts';
@@ -26,7 +25,7 @@ export function BlogArchive({ posts }: { posts: Post[] }) {
                 delay={Math.min(index * 0.06, 0.18)}
                 key={post.slug}
               >
-                <Link className="blog-entry" href={`/blog/${post.slug}`}>
+                <a className="blog-entry" href={`/blog/${post.slug}`}>
                   <span className="blog-entry-main">
                     <strong>{post.title}</strong>
                     <span>{post.summary}</span>
@@ -37,7 +36,7 @@ export function BlogArchive({ posts }: { posts: Post[] }) {
                     <span>{post.readingMinutes} min read</span>
                   </span>
                   <ArrowUpRight aria-hidden="true" strokeWidth={1.5} />
-                </Link>
+                </a>
               </Reveal>
             ))}
           </div>

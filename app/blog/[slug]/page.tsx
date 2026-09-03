@@ -1,6 +1,5 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { ArticleContents } from '@/components/article-contents';
 import { CodeBlock } from '@/components/code-block';
 import { MobileArticleNav } from '@/components/mobile-article-nav';
@@ -98,7 +97,7 @@ export default async function BlogArticle({ params }: PageProps) {
         <div className="missing-page">
           <p>Article not found</p>
           <h1>This article does not exist.</h1>
-          <Link className="text-link" href="/blog">Back to Blog</Link>
+          <a className="text-link" href="/blog">Back to Blog</a>
         </div>
       </main>
     );
@@ -128,9 +127,9 @@ export default async function BlogArticle({ params }: PageProps) {
       />
 
       <header className="inner-nav article-nav">
-        <Link className="wordmark" href="/">@Cyanisok</Link>
+        <a className="wordmark" href="/">@Cyanisok</a>
         <nav aria-label="Article navigation">
-          <Link href="/blog">Blog</Link>
+          <a href="/blog">Blog</a>
           <a href="#article-body">Article</a>
         </nav>
       </header>
@@ -152,7 +151,7 @@ export default async function BlogArticle({ params }: PageProps) {
 
         <div className={`article-layout ${hasContents ? 'has-contents' : ''}`} id="article-body">
           <aside className="article-side">
-            <Link href="/blog">Back to Blog</Link>
+            <a href="/blog">Back to Blog</a>
             <span>{post.author}</span>
           </aside>
           <div className="prose">
@@ -166,10 +165,10 @@ export default async function BlogArticle({ params }: PageProps) {
 
       <aside className="next-article" aria-label="Next article">
         <p className="next-label">Continue reading</p>
-        <Link href={`/blog/${nextPost.slug}`}>
+        <a href={`/blog/${nextPost.slug}`}>
           <span>{nextPost.title}</span>
           <span aria-hidden="true">→</span>
-        </Link>
+        </a>
       </aside>
 
       <SiteFooter />

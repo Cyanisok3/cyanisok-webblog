@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { ArrowUp, List, X } from 'lucide-react';
 import {
   Drawer,
@@ -15,7 +14,7 @@ import type { TocItem } from '@/lib/toc';
 export function MobileArticleNav({ items }: { items: TocItem[] }) {
   return (
     <div className="mobile-article-nav">
-      <Link href="/blog">Blog</Link>
+      <a href="/blog">Blog</a>
       <Drawer>
         <DrawerTrigger className="mobile-contents-trigger">
           <List aria-hidden="true" strokeWidth={1.5} />

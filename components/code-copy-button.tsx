@@ -12,16 +12,24 @@ export function CodeCopyButton({ code }: { code: string }) {
   }, []);
 
   async function copy() {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setCopied(false), 1800);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // Clipboard unavailable (permissions / insecure context); fail silently.
+    }
   }
 
   return (
-    <button className="code-copy" type="button" onClick={copy} aria-label={copied ? 'Code copied' : 'Copy code'}>
-      {copied ? <Check aria-hidden="true" strokeWidth={1.5} /> : <Copy aria-hidden="true" strokeWidth={1.5} />}
-      <span>{copied ? 'Copied' : 'Copy'}</span>
+    <button
+      className="code-copy"
+      type="button"
+      onClick={copy}
+      aria-label={copied ? 'Code copied' : 'Copy code'}
+    >
+      {copied ? <Check aria-hidden="true" strokeWidth={1.75} /> : <Copy aria-hidden="true" strokeWidth={1.5} />}
     </button>
   );
 }

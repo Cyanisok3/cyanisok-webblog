@@ -1,7 +1,8 @@
 import { Children, isValidElement, type ComponentProps, type ReactNode } from 'react';
-import { bundledLanguages, codeToHtml } from 'shiki/bundle/full';
+import { bundledLanguages } from 'shiki/bundle/full';
 import { CodeCopyButton } from '@/components/code-copy-button';
 import { resolveCodeLanguage } from '@/lib/code-language';
+import { highlightCode } from '@/lib/highlighter';
 
 function textContent(node: ReactNode): string {
   if (typeof node === 'string' || typeof node === 'number') return String(node);
@@ -13,30 +14,22 @@ function textContent(node: ReactNode): string {
 export async function CodeBlock({ children, ...props }: ComponentProps<'pre'>) {
   const codeElement = Children.toArray(children).find(isValidElement);
   const codeProps = isValidElement(codeElement)
-    ? codeElement.props as { children?: ReactNode; className?: string; 'data-title'?: string }
+    ? (codeElement.props as { children?: ReactNode; className?: string })
     : {};
   const code = textContent(codeProps.children ?? children).replace(/(?:\r?\n)+$/, '');
   const className = codeProps.className ?? '';
-  const title = codeProps['data-title'];
   const language = resolveCodeLanguage(className, bundledLanguages);
 
   let html = '';
   try {
-    html = await codeToHtml(code, {
-      lang: language as keyof typeof bundledLanguages,
-      theme: 'github-dark-default',
-      structure: 'inline',
-    });
+    html = await highlightCode(code, language);
   } catch {
     html = '';
   }
 
   return (
     <div className="code-block">
-      <div className="code-toolbar">
-        <span>{title ?? language}</span>
-        <CodeCopyButton code={code} />
-      </div>
+      <CodeCopyButton code={code} />
       <pre {...props}>
         {html ? (
           <code className={className} dangerouslySetInnerHTML={{ __html: html }} />

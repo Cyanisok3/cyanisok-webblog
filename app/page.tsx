@@ -75,11 +75,13 @@ export default function Home() {
               Hello there behind the screen. You may call me Cyan. 
             </p>
             <p>
-              If you are also attuned to the flow of time, you would likely agree that the essence of all greatest things lies in a kind of "serenity", or a "constant state free from constraints". This draws me to voice my emotions from the deepest reaches of the universe, hoping to radiate a glimmer of light and warmth within the utter darkness.
+              If you are also attuned to the flow of time, you would likely agree that the essence of all greatest things lies in a kind of "serenity", or a "constant state free from constraints".
             </p>
-            <p className="about-quote">
-              In Chinese, we can say:
-              "致虚极，守静笃。"
+            <p>
+              This draws me to voice my emotions from the deepest reaches of the universe, hoping to radiate a glimmer of light and warmth within the utter darkness.
+            </p>
+            <p>
+              And that is why we are still documenting these days.
             </p>
           </div>
         </div>

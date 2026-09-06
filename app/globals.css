@@ -535,7 +535,7 @@ img {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: url('/archive/background_bright.webp') center / cover no-repeat;
+  background: url('/archive/background_dark.webp') center / cover no-repeat;
   content: '';
   opacity: 0.15;
   pointer-events: none;
@@ -682,6 +682,21 @@ img {
 
 .article-page {
   --article-width: 760px;
+}
+
+.article-page::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url('/archive/background_dark.webp') center / cover no-repeat;
+  content: '';
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.article-page > * {
+  position: relative;
+  z-index: 1;
 }
 
 .article-header {

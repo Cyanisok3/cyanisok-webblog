@@ -16,6 +16,32 @@ jobs:
     runs-on: [self-hosted, linux, x64, cyanisok-webblog]
 
     steps:
+      - name: Free disk space for the runner
+        run: |
+          set -euo pipefail
+
+          deploy_root="/home/ubuntu/cyanisok-webblog"
+
+          # Keep only the newest 3 releases (never remove the symlinked current).
+          if [[ -d "$deploy_root/releases" ]]; then
+            current="$(readlink -f "$deploy_root/current" || true)"
+            find "$deploy_root/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+              | sort -rn \
+              | tail -n +4 \
+              | cut -d' ' -f2- \
+              | while read -r old_release; do
+                  if [[ -n "$old_release" && "$(readlink -f "$old_release")" != "$current" ]]; then
+                    rm -rf "$old_release"
+                  fi
+                done
+          fi
+
+          # Prune runner diagnostics and npm cache older than 7 days.
+          find /home/ubuntu/actions-runner-webblog/_diag -type f -mtime +7 -delete 2>/dev/null || true
+          find /home/ubuntu/.npm/_cacache -type f -mtime +7 -delete 2>/dev/null || true
+
+          df -h /home/ubuntu | tail -1
+
       - name: Prepare exact source revision
         run: |
           set -euo pipefail
@@ -127,3 +153,17 @@ jobs:
           sudo rm -f "$nginx_backup"
           curl -kfsS https://127.0.0.1/ -H "Host: cyanisok.cn" >/dev/null
           sudo systemctl --no-pager --full status cyanisok-webblog
+
+          # Keep at most 3 releases (including this one); prune the rest so the
+          # self-hosted runner never fills its disk again.
+          current="$(readlink -f "$deploy_root/current" || true)"
+          find "$deploy_root/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+            | sort -rn \
+            | tail -n +4 \
+            | cut -d' ' -f2- \
+            | while read -r old_release; do
+                if [[ -n "$old_release" && "$(readlink -f "$old_release")" != "$current" ]]; then
+                  rm -rf "$old_release"
+                fi
+              done
+          df -h /home/ubuntu | tail -1

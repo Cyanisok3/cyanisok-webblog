@@ -435,7 +435,12 @@ img {
   font-size: clamp(2.6rem, 5.5vw, 6rem);
   font-weight: 400;
   letter-spacing: -0.055em;
-  line-height: 1;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+.about-quote {
+  font-family: 'RN', var(--serif);
 }
 
 .about-copy {

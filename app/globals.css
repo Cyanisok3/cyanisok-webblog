@@ -498,6 +498,11 @@ img {
   font-size: 1.4rem;
 }
 
+.blog-page .wordmark,
+.article-page .wordmark {
+  font-family: 'RN', var(--serif);
+}
+
 .inner-nav nav {
   display: flex;
   gap: 28px;

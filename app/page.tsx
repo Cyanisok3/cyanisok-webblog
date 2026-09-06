@@ -69,7 +69,7 @@ export default function Home() {
       <section className="about-section" id="about" aria-labelledby="about-title">
         <p className="section-kicker">03 · About</p>
         <div className="about-grid">
-          <h2 id="about-title">Taste matters not only in art but also in technology.</h2>
+          <h2 id="about-title">Taste matters<br />not only in art<br /> but also in technology.</h2>
           <div className="about-copy">
             <p>
               Hello there behind the screen. You may call me Cyan. 
@@ -78,7 +78,8 @@ export default function Home() {
               If you are also attuned to the flow of time, you would likely agree that the essence of all greatest things lies in a kind of "serenity", or a "constant state free from constraints". This draws me to voice my emotions from the deepest reaches of the universe, hoping to radiate a glimmer of light and warmth within the utter darkness.
             </p>
             <p className="about-quote">
-              致虚极，守静笃。
+              In Chinese, we can say:
+              "致虚极，守静笃。"
             </p>
           </div>
         </div>

@@ -69,17 +69,13 @@ export default function Home() {
       <section className="about-section" id="about" aria-labelledby="about-title">
         <p className="section-kicker">03 · About</p>
         <div className="about-grid">
-          <h2 id="about-title">Not a finished portfolio,<br />but a personal archive in progress.</h2>
+          <h2 id="about-title">Taste matters not only in art<br /> but also in technology..</h2>
           <div className="about-copy">
             <p>
-              I&apos;m Cyan Liu. This archive gathers my ongoing notes on AI agents,
-              systems engineering, empirical research, and visual practice, alongside
-              fragments of light found while travelling.
+              Hello there behind the screen. You may call me Cyan. 
             </p>
             <p>
-              The blog brings together my existing technical writing, with full articles and
-              code examples preserved. The photography section will continue to grow
-              with my personal work.
+              If you are also attuned to the flow of time, you would likely agree that the essence of all greatest things lies in a kind of "serenity", or a "constant state free from constraints". This draws me to voice my emotions from the deepest reaches of the universe, hoping to radiate a glimmer of light and warmth within the utter darkness.
             </p>
           </div>
         </div>

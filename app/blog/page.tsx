@@ -25,7 +25,7 @@ export default function BlogPage() {
         <a className="wordmark" href="/">@Cyanisok</a>
         <nav aria-label="Blog navigation">
           <a href="/">Home</a>
-          <a href="/">Photography</a>
+          <a href="/photography">Photography</a>
           <a href="/">About</a>
         </nav>
       </header>

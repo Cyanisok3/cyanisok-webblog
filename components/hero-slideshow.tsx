@@ -1,33 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { heroPhotographs } from '@/lib/photographs';
 
-const slides = [
-  {
-    src: '/resources/zibo.webp',
-    alt: 'A wheat field in Zibo',
-  },
-  {
-    src: '/resources/hainan.webp',
-    alt: 'Soft tropical foliage in Hainan',
-  },
-  {
-    src: '/resources/shanghai.webp',
-    alt: 'City lights in Shanghai',
-  },
-  {
-    src: '/resources/yantai.webp',
-    alt: 'A city crowd in Yantai',
-  },
-  {
-    src: '/resources/ningbo.webp',
-    alt: 'A quiet horizon in Ningbo',
-  },
-  {
-    src: '/resources/unnc.webp',
-    alt: 'Grass and soft light at UNNC',
-  },
-];
+const slides = heroPhotographs.map((photo) => ({ src: photo.monoSrc, alt: photo.alt }));
 
 export function HeroSlideshow() {
   const [active, setActive] = useState(0);
@@ -42,7 +18,7 @@ export function HeroSlideshow() {
   }, []);
 
   // Mount only the current slide and preload the next one, so the initial
-  // page load fetches a single image instead of all six at once.
+  // page load avoids fetching the complete archive at once.
   const next = (active + 1) % slides.length;
 
   return (
@@ -67,7 +43,7 @@ export function HeroSlideshow() {
           Chat With Me <span aria-hidden="true">→</span>
         </span>
         <nav aria-label="Primary navigation">
-          <a href="/">Photography</a>
+          <a href="/photography">Photography</a>
           <a href="/blog">Blog</a>
           <a href="/">About</a>
         </nav>

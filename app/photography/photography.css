@@ -1,0 +1,117 @@
+.photography-page {
+  background: #0d0d0c;
+  color: #f8f6ef;
+  min-height: 100svh;
+}
+
+.photography-shell { max-width: 1440px; margin: auto; padding: 40px 48px 32px; }
+.photography-nav { display: flex; justify-content: space-between; align-items: flex-start; min-height: 128px; }
+.photography-wordmark { font-family: 'RN', var(--serif); font-size: 36px; line-height: 1.35; }
+.photography-nav nav { display: flex; flex-direction: column; align-items: flex-end; gap: 19px; }
+.photography-nav nav a { position: relative; font-family: 'RN', var(--serif); font-size: 27px; line-height: 1.35; opacity: .64; }
+.photography-nav nav a[aria-current], .photography-nav nav a:hover, .photography-nav nav a:focus-visible { opacity: 1; }
+.photography-nav nav a::after {
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  content: '';
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 260ms ease;
+}
+.photography-nav nav a:hover::after,
+.photography-nav nav a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.photography-heading { margin-top: 24px; }
+.photography-heading h1 { position: relative; width: fit-content; margin: 0; font-family: 'RN', var(--serif); font-size: clamp(48px, 5.3vw, 76px); line-height: 1.15; font-weight: 400; }
+.photography-title-echo { position: absolute; inset: 0; pointer-events: none; opacity: 0; clip-path: inset(45% 0 48% 0); animation: photography-register 350ms ease-out; }
+.photography-heading > p { margin: 18px 0 0 4px; font: 11px/1.5 var(--mono); text-transform: uppercase; color: #aaa9a2; }
+.photography-archive { display: grid; grid-template-columns: 276px minmax(0, 1fr); gap: 48px; margin-top: 28px; }
+.photography-notes { padding: 48px 4px 0; }
+.photography-intro { margin: 0; font-size: 18px; line-height: 1.2; color: #deddd6; }
+.photography-index { margin-top: 68px; font: 10px/1.5 var(--mono); text-transform: uppercase; color: #a6a59d; }
+.photography-index > p { margin: 0 0 16px; }
+.photography-index > p span { margin-left: 20px; }
+.photography-index ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 90px); }
+.photography-viewfinder { margin: 125px 0 0; font: 11px/1.3 var(--mono); color: #8d8c86; }
+.photography-afterword { margin: 76px 0 0; color: #b6b5ae; font-size: 14px; line-height: 1.25; }
+.photography-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 54px 24px; list-style: none; padding: 0 0 128px; margin: 0; }
+.photography-item { min-width: 0; }
+.photography-item:nth-child(3n + 1) { transform: translateY(32px); }
+.photography-item:nth-child(3n + 2) { transform: translateY(128px); }
+.photography-card { display: block; width: 100%; border: 0; background: none; color: inherit; text-align: left; padding: 0; cursor: pointer; animation: photography-appear 450ms ease-out both; }
+.photography-image-pair { display: block; position: relative; width: 100%; overflow: hidden; background: #171715; }
+.photography-image-pair img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.photography-color { opacity: 0; transition: opacity 500ms ease; }
+.photography-card:focus-visible .photography-color.is-ready { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .photography-card:hover .photography-color.is-ready { opacity: 1; }
+  .photography-card:hover .photography-open { opacity: 1; }
+}
+.photography-caption { display: flex; align-items: center; justify-content: space-between; padding-top: 13px; font: 10px/1.5 var(--mono); text-transform: uppercase; color: #b8b6ad; }
+.photography-open { opacity: 0; transition: opacity 180ms; }
+.photography-card:focus-visible .photography-open { opacity: 1; }
+.photography-image-error { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font: 12px/1.8 var(--mono); color: #b8b6ad; }
+.photography-footer { margin-top: 72px; padding-top: 26px; border-top: 1px solid #383833; display: flex; justify-content: space-between; gap: 20px; color: #aaa9a2; font: 10px/1.5 var(--mono); text-transform: uppercase; }
+.photography-footer a:hover { color: #f8f6ef; }
+
+.photography-lightbox-backdrop { position: fixed; inset: 0; background: rgb(8 8 7 / 98%); z-index: 100; }
+.photography-lightbox { position: fixed; inset: 0; z-index: 101; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 24px 40px; gap: 20px; color: #f8f6ef; font-family: var(--mono); outline: none; }
+.photography-lightbox-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.photography-lightbox-header h2 { margin: 0; font: 24px/1.3 'RN', var(--serif); }
+.photography-lightbox button { border: 0; background: none; color: inherit; cursor: pointer; min-height: 44px; padding: 10px; font: 12px/1.4 var(--mono); }
+.photography-lightbox button:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 5px; }
+.photography-lightbox button:disabled { opacity: .3; cursor: default; }
+.photography-lightbox-close { display: flex; align-items: center; gap: 14px; }
+.photography-lightbox-close > span { font-size: 25px; text-decoration: none; }
+.photography-lightbox-stage { position: relative; min-height: 0; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.photography-lightbox-stage img { position: relative; z-index: 1; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; }
+.photography-lightbox .photography-lightbox-dismiss { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; }
+.photography-lightbox-stage img.is-ready { opacity: 1; }
+.photography-loading { position: absolute; z-index: 2; pointer-events: none; color: #b8b6ad; text-align: center; font-size: 12px; }
+.photography-fallback { position: absolute; z-index: 2; bottom: 8px; padding: 8px 12px; background: #0d0d0c; font-size: 11px; text-align: center; pointer-events: none; }
+.photography-lightbox-controls { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.photography-lightbox-controls > button:first-child { justify-self: start; }
+.photography-lightbox-controls > button:last-child { justify-self: end; }
+.photography-lightbox-controls p { margin: 0; text-align: center; font-size: 11px; color: #b8b6ad; }
+.photography-lightbox-controls p span { display: block; margin-top: 5px; }
+@keyframes photography-register { 0%, 100% { opacity: 0; transform: none; } 25% { opacity: .9; transform: translateX(3px); } 55% { opacity: .5; transform: translateX(-2px); } }
+@keyframes photography-appear { from { opacity: .2; } to { opacity: 1; } }
+@media (max-width: 1100px) {
+  .photography-shell { padding-inline: 32px; }
+  .photography-archive { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .photography-notes { padding: 12px 0 0; display: flex; justify-content: space-between; gap: 30px; align-items: start; }
+  .photography-index { margin: 0; }
+  .photography-viewfinder, .photography-afterword { display: none; }
+  .photography-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-bottom: 0; }
+  .photography-item:nth-child(n) { transform: none; }
+}
+@media (max-width: 680px) {
+  .photography-shell { padding: 26px 22px; }
+  .photography-nav { min-height: auto; flex-direction: column; gap: 22px; }
+  .photography-wordmark { font-size: 30px; }
+  .photography-nav nav { flex-direction: row; flex-wrap: wrap; gap: 24px; }
+  .photography-nav nav a { font-size: 18px; }
+  .photography-heading { margin-top: 54px; }
+  .photography-heading h1 { font-size: clamp(38px, 9vw, 58px); }
+  .photography-heading > p { margin-left: 0; font-size: 10px; }
+  .photography-archive { margin-top: 30px; gap: 30px; }
+  .photography-notes { display: block; padding: 0; }
+  .photography-intro { font-size: 17px; }
+  .photography-index { display: none; }
+  .photography-grid { grid-template-columns: minmax(0, 1fr); row-gap: 38px; }
+  .photography-caption { font-size: 11px; }
+  .photography-footer { flex-wrap: wrap; margin-top: 56px; gap: 18px; }
+  .photography-footer > span:nth-child(2) { display: none; }
+  .photography-lightbox { padding: 12px 14px; gap: 12px; }
+  .photography-lightbox-controls button span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .photography-title-echo, .photography-card { animation: none; }
+  .photography-page *, .photography-lightbox * { transition: none !important; }
+}

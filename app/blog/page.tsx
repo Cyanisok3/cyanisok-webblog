@@ -26,7 +26,7 @@ export default function BlogPage() {
         <nav aria-label="Blog navigation">
           <a href="/">Home</a>
           <a href="/photography">Photography</a>
-          <a href="/">About</a>
+          <a href="/#about">About</a>
         </nav>
       </header>
 

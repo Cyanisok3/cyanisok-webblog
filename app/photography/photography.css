@@ -28,7 +28,7 @@
   transform-origin: left;
 }
 .photography-heading { margin-top: 24px; }
-.photography-heading h1 { position: relative; width: fit-content; margin: 0; font-family: 'RN', var(--serif); font-size: clamp(48px, 5.3vw, 76px); line-height: 1.15; font-weight: 400; }
+.photography-heading h1 { position: relative; width: fit-content; margin: 0; font-size: clamp(48px, 5.3vw, 76px); line-height: 1.15; font-weight: 400; }
 .photography-title-echo { position: absolute; inset: 0; pointer-events: none; opacity: 0; clip-path: inset(45% 0 48% 0); animation: photography-register 350ms ease-out; }
 .photography-heading > p { margin: 18px 0 0 4px; font: 11px/1.5 var(--mono); text-transform: uppercase; color: #aaa9a2; }
 .photography-archive { display: grid; grid-template-columns: 276px minmax(0, 1fr); gap: 48px; margin-top: 28px; }
@@ -79,6 +79,7 @@
 .photography-lightbox-stage { position: relative; min-height: 0; min-width: 0; display: flex; align-items: center; justify-content: center; }
 .photography-lightbox-stage img { position: relative; z-index: 1; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; }
 .photography-lightbox .photography-lightbox-dismiss { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; }
+.photography-lightbox .photography-lightbox-dismiss::after { display: none; }
 .photography-lightbox-stage img.is-ready { opacity: 1; }
 .photography-loading { position: absolute; z-index: 2; pointer-events: none; color: #b8b6ad; text-align: center; font-size: 12px; }
 .photography-fallback { position: absolute; z-index: 2; bottom: 8px; padding: 8px 12px; background: #0d0d0c; font-size: 11px; text-align: center; pointer-events: none; }

@@ -60,6 +60,20 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Designer-site convention: lock text selection so the OS selection
+   tint never pollutes the UI. Article prose and code stay selectable. */
+* {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.prose,
+.prose *,
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 body::selection {
   background: var(--ink);
   color: var(--white);
@@ -170,7 +184,7 @@ img {
 }
 
 .hero-header nav a::after,
-.inner-nav a::after,
+.inner-nav nav a::after,
 .site-footer a::after {
   position: absolute;
   right: 0;
@@ -186,8 +200,8 @@ img {
 
 .hero-header nav a:hover::after,
 .hero-header nav a:focus-visible::after,
-.inner-nav a:hover::after,
-.inner-nav a:focus-visible::after,
+.inner-nav nav a:hover::after,
+.inner-nav nav a:focus-visible::after,
 .site-footer a:hover::after,
 .site-footer a:focus-visible::after {
   transform: scaleX(1);
@@ -484,7 +498,7 @@ img {
 
 .inner-nav {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   padding: 30px 4vw;
   border-bottom: 1px solid var(--line);

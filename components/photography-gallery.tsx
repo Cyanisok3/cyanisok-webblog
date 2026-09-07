@@ -105,7 +105,7 @@ export function PhotographyGallery({ photos }: { photos: Photograph[] }) {
             }}>
             <header className="photography-lightbox-header">
               <Dialog.Title>{photo?.title ?? 'Photograph'}</Dialog.Title>
-              <Dialog.Close ref={closeButton} className="photography-lightbox-close" aria-label="Close photograph">Close <span aria-hidden="true">×</span></Dialog.Close>
+              <Dialog.Close ref={closeButton} className="photography-lightbox-close" aria-label="Close photograph"><span className="photography-lightbox-close-label">Close</span> <span aria-hidden="true">×</span></Dialog.Close>
             </header>
             <Dialog.Description className="sr-only">Full color photograph. Use the left and right arrow keys to browse, or Escape to close.</Dialog.Description>
             <div className="photography-lightbox-stage">

@@ -10,8 +10,8 @@ const entries = [];
 for (const id of ids) {
   const input = path.join(process.cwd(), 'public', 'resources', 'monochrome', `${id}.webp`);
   const metadata = await sharp(input).metadata();
-  const height = Math.max(8, Math.round(width * (metadata.height / metadata.width) * 0.58));
-  const { data } = await sharp(input).greyscale().resize(width, height, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
+  const height = Math.max(8, Math.round(width * (metadata.height / metadata.width) * 0.60));
+  const { data } = await sharp(input).greyscale().linear(1.12, -12).resize(width, height, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
   const rows = [];
   for (let y = 0; y < height; y += 1) {
     let row = '';

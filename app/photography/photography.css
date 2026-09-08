@@ -37,9 +37,11 @@
 .photography-ascii-preview { position: sticky; top: 32px; width: 240px; margin-top: 104px; color: #8d8c86; }
 .photography-ascii-stage { position: relative; width: 240px; aspect-ratio: 1.85; overflow: hidden; }
 .photography-ascii-stage pre { position: absolute; inset: 0; margin: 0; font: 10px/.95 var(--mono); letter-spacing: 0; white-space: pre; }
+.photography-ascii-stage pre.is-placeholder { opacity: 0; }
 .photography-ascii-stage .is-entering { animation: photography-ascii-in 180ms ease-out both; }
 .photography-ascii-stage .is-leaving { animation: photography-ascii-out 180ms ease-out both; }
 .photography-ascii-preview > p { margin: 12px 0 0; font: 10px/1.5 var(--mono); text-transform: uppercase; }
+.photography-ascii-preview > .photography-ascii-scrambled { letter-spacing: 0.14em; color: #706f69; }
 .photography-afterword { margin: 76px 0 0; color: #b6b5ae; font-size: 14px; line-height: 1.25; }
 .photography-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 54px 24px; list-style: none; padding: 0 0 128px; margin: 0; }
 .photography-item { min-width: 0; }

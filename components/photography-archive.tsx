@@ -5,14 +5,23 @@ import { photoAscii } from '@/lib/photo-ascii';
 import type { Photograph } from '@/lib/photographs';
 import { PhotographyGallery } from '@/components/photography-gallery';
 
-function AsciiPreview({ photo, index, previous }: { photo: Photograph; index: number; previous: Photograph | null }) {
+function AsciiPreview({ photo, index, previous, placeholder = false }: {
+  photo: Photograph | null;
+  index: number;
+  previous: Photograph | null;
+  placeholder?: boolean;
+}) {
+  const glyph = photo ? photoAscii[photo.id] : photoAscii.zibo;
   return (
     <div className="photography-ascii-preview">
       <div className="photography-ascii-stage" aria-hidden="true">
         {previous ? <pre className="is-leaving">{photoAscii[previous.id]}</pre> : null}
-        <pre key={photo.id} className="is-entering">{photoAscii[photo.id]}</pre>
+        {photo ? <pre key={photo.id} className="is-entering">{glyph}</pre>
+               : <pre className="is-placeholder" aria-hidden="true">{glyph}</pre>}
       </div>
-      <p>{String(index + 1).padStart(2, '0')} / {photo.title}</p>
+      <p className={placeholder ? 'photography-ascii-scrambled' : undefined}>
+        {placeholder ? '##&%$@ / *&#$%@' : `${String(index + 1).padStart(2, '0')} / ${photo!.title}`}
+      </p>
     </div>
   );
 }
@@ -41,7 +50,8 @@ export function PhotographyArchive({ photos }: { photos: Photograph[] }) {
           <p>Index <span>{String(photos.length).padStart(2, '0')} photographs</span></p>
           <ul>{photos.map((photo) => <li key={photo.id}>{photo.title}</li>)}</ul>
         </div>
-        {active ? <AsciiPreview photo={active} index={activeIndex} previous={previous} /> : null}
+        {active ? <AsciiPreview photo={active} index={activeIndex} previous={previous} />
+                : <AsciiPreview photo={null} index={-1} previous={null} placeholder />}
         <p className="photography-afterword">We interact with the world.<br />We look a little longer.</p>
       </aside>
       <PhotographyGallery photos={photos} onActiveIndexChange={handleActiveIndexChange} />

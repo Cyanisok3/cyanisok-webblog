@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { ArticleContents } from '@/components/article-contents';
 import { CodeBlock } from '@/components/code-block';
 import { MobileArticleNav } from '@/components/mobile-article-nav';
+import { InnerNavigation } from '@/components/inner-navigation';
 import { SiteFooter } from '@/components/site-footer';
 import { formatDate, getPost, getPosts } from '@/lib/posts';
 
@@ -126,13 +127,9 @@ export default async function BlogArticle({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
 
-      <header className="inner-nav article-nav">
-        <a className="wordmark" href="/">@Cyanisok</a>
-        <nav aria-label="Article navigation">
-          <a href="/blog">Blog</a>
-          <a href="#article-body">Article</a>
-        </nav>
-      </header>
+      <div className="inner-shell article-shell">
+        <InnerNavigation active="blog" className="article-nav" label="Article navigation" />
+      </div>
 
       <article>
         <header className="article-header">

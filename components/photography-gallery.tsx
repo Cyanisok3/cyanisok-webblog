@@ -6,15 +6,18 @@ import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import type { Photograph } from '@/lib/photographs';
 
-function PhotoCard({ photo, index, onOpen }: {
+function PhotoCard({ photo, index, onOpen, onEnter, onLeave }: {
   photo: Photograph;
   index: number;
   onOpen: (trigger: HTMLButtonElement) => void;
+  onEnter: (kind: 'focus' | 'hover') => void;
+  onLeave: (kind: 'focus' | 'hover') => void;
 }) {
   const trigger = useRef<HTMLButtonElement>(null);
   const [near, setNear] = useState(false);
   const [colorReady, setColorReady] = useState(false);
   const [monoFailed, setMonoFailed] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const node = trigger.current;
@@ -30,11 +33,29 @@ function PhotoCard({ photo, index, onOpen }: {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const node = trigger.current;
+    if (!node) return;
+    if (typeof IntersectionObserver !== 'function') {
+      const frame = window.requestAnimationFrame(() => {
+        setVisible(true);
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setVisible(true);
+    }, { threshold: 0.12 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <li className="photography-item">
-      <button ref={trigger} className="photography-card" type="button"
+      <button ref={trigger} className={`photography-card${visible ? ' is-visible' : ''}`} type="button"
         aria-label={`View ${photo.title}, photograph ${index + 1}`}
-        aria-haspopup="dialog" onClick={(event) => onOpen(event.currentTarget)}>
+        aria-haspopup="dialog" onClick={(event) => onOpen(event.currentTarget)}
+        onMouseEnter={() => onEnter('hover')} onMouseLeave={() => onLeave('hover')}
+        onFocus={() => onEnter('focus')} onBlur={() => onLeave('focus')}>
         <span className="photography-image-pair" style={{ aspectRatio: `${photo.monoSize.width} / ${photo.monoSize.height}` }}>
           {monoFailed ? <span className="photography-image-error">{photo.title}<br />Preview unavailable</span> : (
             <img className="photography-mono" src={photo.monoSrc} alt={photo.alt}
@@ -78,11 +99,28 @@ function LightboxImage({ photo }: { photo: Photograph }) {
   );
 }
 
-export function PhotographyGallery({ photos }: { photos: Photograph[] }) {
+export function PhotographyGallery({ photos, onActiveIndexChange }: { photos: Photograph[]; onActiveIndexChange?: (index: number) => void }) {
   const [selected, setSelected] = useState<number | null>(null);
   const returnFocus = useRef<HTMLButtonElement | null>(null);
   const closeButton = useRef<HTMLButtonElement | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [focused, setFocused] = useState<number | null>(null);
+  const lastPointer = useRef(0);
   const photo = selected === null ? null : photos[selected];
+
+  // Mouse clicks move the pointer immediately before focus, so a focus
+  // that follows a recent pointer move is mouse-induced and must not pin
+  // the ascii preview. Keyboard focus (no pointer) stays meaningful.
+  useEffect(() => {
+    const onMove = () => { lastPointer.current = Date.now(); };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
+
+  useEffect(() => {
+    if (selected !== null) return;
+    onActiveIndexChange?.(hovered ?? focused ?? -1);
+  }, [focused, hovered, onActiveIndexChange, selected]);
 
   function step(direction: number) {
     setSelected((current) => current === null ? null : Math.min(photos.length - 1, Math.max(0, current + direction)));
@@ -92,7 +130,12 @@ export function PhotographyGallery({ photos }: { photos: Photograph[] }) {
     <>
       <ol className="photography-grid">
         {photos.map((item, index) => <PhotoCard key={item.id} photo={item} index={index}
-          onOpen={(trigger) => { returnFocus.current = trigger; setSelected(index); }} />)}
+          onOpen={(trigger) => { returnFocus.current = trigger; setSelected(index); }}
+          onEnter={(kind) => {
+            if (kind === 'focus' && Date.now() - lastPointer.current < 300) return;
+            kind === 'focus' ? setFocused(index) : setHovered(index);
+          }}
+          onLeave={(kind) => kind === 'focus' ? setFocused(null) : setHovered(null)} />)}
       </ol>
       <Dialog.Root open={selected !== null} onOpenChange={(open) => { if (!open) setSelected(null); }}>
         <Dialog.Portal>

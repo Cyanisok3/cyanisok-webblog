@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { BlogArchive } from '@/components/blog-archive';
+import { InnerNavigation } from '@/components/inner-navigation';
 import { SiteFooter } from '@/components/site-footer';
 import { Reveal } from '@/components/reveal';
 import { getPosts } from '@/lib/posts';
@@ -20,15 +21,8 @@ export default function BlogPage() {
   const posts = getPosts();
 
   return (
-    <main className="inner-page blog-page">
-      <header className="inner-nav">
-        <a className="wordmark" href="/">@Cyanisok</a>
-        <nav aria-label="Blog navigation">
-          <a href="/">Home</a>
-          <a href="/photography">Photography</a>
-          <a href="/#about">About</a>
-        </nav>
-      </header>
+    <main className="inner-page blog-page inner-shell">
+      <InnerNavigation active="blog" label="Blog navigation" />
 
       <section className="blog-hero" aria-labelledby="blog-page-title">
         <Reveal className="blog-hero-content">

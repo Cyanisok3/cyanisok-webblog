@@ -48,15 +48,21 @@ jobs:
 
           deploy_root="/home/ubuntu/cyanisok-webblog"
           release_dir="$deploy_root/releases/$GITHUB_SHA-$GITHUB_RUN_ATTEMPT"
-          archive="$RUNNER_TEMP/cyanisok-webblog-$GITHUB_SHA.tar.gz"
 
           mkdir -p "$release_dir"
-          curl -fsSL --retry 5 --retry-all-errors \
-            --connect-timeout 20 --max-time 300 \
-            -o "$archive" \
-            "https://codeload.github.com/Cyanisok3/cyanisok-webblog/tar.gz/$GITHUB_SHA"
-          tar xzf "$archive" --strip-components=1 -C "$release_dir"
-          rm "$archive"
+          # Prefer git over https: github.com:443 is reachable from this VPS,
+          # while codeload.github.com (tarball endpoint) is intermittently blocked.
+          if ! git clone --depth 1 --branch main \
+              "https://github.com/Cyanisok3/cyanisok-webblog.git" "$release_dir" 2>/dev/null; then
+            echo "git clone failed, falling back to codeload tarball"
+            archive="$RUNNER_TEMP/cyanisok-webblog-$GITHUB_SHA.tar.gz"
+            curl -fsSL --retry 5 --retry-all-errors \
+              --connect-timeout 20 --max-time 300 \
+              -o "$archive" \
+              "https://codeload.github.com/Cyanisok3/cyanisok-webblog/tar.gz/$GITHUB_SHA"
+            tar xzf "$archive" --strip-components=1 -C "$release_dir"
+            rm "$archive"
+          fi
 
           test -f "$release_dir/package-lock.json"
           test -f "$release_dir/.github/workflows/deploy.yml"

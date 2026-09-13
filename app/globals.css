@@ -1398,6 +1398,15 @@ img {
   .site-footer {
     margin-right: 22px;
     margin-left: 22px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px 24px;
+    text-align: center;
+  }
+
+  .site-icp {
+    order: 3;
+    flex-basis: 100%;
   }
 
   .inner-nav {

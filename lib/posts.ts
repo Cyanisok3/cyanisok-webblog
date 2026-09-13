@@ -83,7 +83,10 @@ const posts = Object.entries(compiledPosts)
       Content: module.default,
     } satisfies Post;
   })
-  .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  .sort((a, b) =>
+    (b.updatedAt ?? b.publishedAt).localeCompare(a.updatedAt ?? a.publishedAt) ||
+    b.publishedAt.localeCompare(a.publishedAt),
+  );
 
 export function getPosts() {
   return posts;

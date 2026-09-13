@@ -12,10 +12,11 @@ function groupByYear(posts: Post[]) {
 
 export function BlogArchive({ posts }: { posts: Post[] }) {
   const groups = groupByYear(posts);
+  const years = Object.entries(groups).sort(([a], [b]) => b.localeCompare(a));
 
   return (
     <div className="blog-archive">
-      {Object.entries(groups).map(([year, entries]) => (
+      {years.map(([year, entries]) => (
         <section className="blog-year" aria-labelledby={`year-${year}`} key={year}>
           <h2 id={`year-${year}`}>{year}</h2>
           <div className="blog-year-posts">

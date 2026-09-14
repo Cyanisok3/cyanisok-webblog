@@ -5,6 +5,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import type { Photograph } from '@/lib/photographs';
+import { LightboxGlyphField } from '@/components/lightbox-glyph-field';
+
+const glyphPhotoIds = new Set(['zibo', 'shanghai', 'hainan', 'unnc']);
 
 function PhotoCard({ photo, index, onOpen, onEnter, onLeave }: {
   photo: Photograph;
@@ -84,15 +87,32 @@ function LightboxImage({ photo }: { photo: Photograph }) {
   const [colorFailed, setColorFailed] = useState(false);
   const [monoFailed, setMonoFailed] = useState(false);
   const [ready, setReady] = useState(false);
+  const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const size = colorFailed ? photo.monoSize : photo.colorSize;
+  const source = colorFailed ? photo.monoSrc : photo.colorSrc;
+
+  function failed(image: HTMLImageElement) {
+    if (imageRef.current !== image) return;
+    setReady(false);
+    setLoadedImage(null);
+    if (colorFailed) setMonoFailed(true); else setColorFailed(true);
+  }
+
   return (
     <>
-      {!monoFailed && <img src={colorFailed ? photo.monoSrc : photo.colorSrc} alt={photo.alt}
+      {!monoFailed && <img key={source} ref={imageRef} src={source} alt={photo.alt}
         width={size.width} height={size.height} className={ready ? 'is-ready' : ''}
-        onLoad={() => setReady(true)} onError={() => {
-          setReady(false);
-          if (colorFailed) setMonoFailed(true); else setColorFailed(true);
-        }} />}
+        onLoad={async (event) => {
+          const image = event.currentTarget;
+          try {
+            await image.decode();
+            if (imageRef.current !== image) return;
+            setLoadedImage(image);
+            setReady(true);
+          } catch { failed(image); }
+        }} onError={(event) => failed(event.currentTarget)} />}
+      {glyphPhotoIds.has(photo.id) && ready && loadedImage && <LightboxGlyphField image={loadedImage} />}
       {!ready && <output className="photography-loading">{monoFailed ? 'This photograph could not be loaded.' : 'Loading photograph…'}</output>}
       {colorFailed && !monoFailed && <output className="photography-fallback">Color version unavailable — showing monochrome.</output>}
     </>
@@ -133,7 +153,7 @@ export function PhotographyGallery({ photos, onActiveIndexChange }: { photos: Ph
           onOpen={(trigger) => { returnFocus.current = trigger; setSelected(index); }}
           onEnter={(kind) => {
             if (kind === 'focus' && Date.now() - lastPointer.current < 300) return;
-            kind === 'focus' ? setFocused(index) : setHovered(index);
+            if (kind === 'focus') setFocused(index); else setHovered(index);
           }}
           onLeave={(kind) => kind === 'focus' ? setFocused(null) : setHovered(null)} />)}
       </ol>

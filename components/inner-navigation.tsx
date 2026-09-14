@@ -1,5 +1,6 @@
+/* oxlint-disable nextjs/no-html-link-for-pages -- vinext currently requires native anchors for client navigation; see the routing note below. */
 type InnerNavigationProps = {
-  active: 'photography' | 'blog';
+  active: 'photography' | 'blog' | 'about';
   className?: string;
   label: string;
 };
@@ -13,7 +14,7 @@ export function InnerNavigation({ active, className = '', label }: InnerNavigati
       <nav aria-label={label}>
         <a href="/photography" aria-current={active === 'photography' ? 'page' : undefined}>Photography</a>
         <a href="/blog" aria-current={active === 'blog' ? 'page' : undefined}>Blog</a>
-        <a href="/#about">About</a>
+        <a href="/about" aria-current={active === 'about' ? 'page' : undefined}>About</a>
       </nav>
     </header>
   );

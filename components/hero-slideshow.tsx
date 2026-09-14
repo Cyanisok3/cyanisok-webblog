@@ -45,7 +45,7 @@ export function HeroSlideshow() {
         <nav aria-label="Primary navigation">
           <a href="/photography">Photography</a>
           <a href="/blog">Blog</a>
-          <a href="/">About</a>
+          <a href="/about">About</a>
         </nav>
       </header>
 

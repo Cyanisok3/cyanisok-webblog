@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: SITE_URL, lastModified: new Date() },
     { url: `${SITE_URL}/blog`, lastModified: new Date() },
     { url: `${SITE_URL}/photography`, lastModified: new Date() },
+    { url: `${SITE_URL}/about`, lastModified: new Date() },
     ...posts,
   ];
 }

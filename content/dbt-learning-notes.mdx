@@ -1,0 +1,70 @@
+---
+title: "Learning dbt from Zero"
+publishedAt: "2026-09-13"
+updatedAt: "2026-09-13"
+author: "Cyan Liu"
+category: "Engineering-data"
+summary: "My notes on learning dbt from absolute zero: what it is, how a project is structured, views vs tables, sources, and Jinja."
+---
+
+# Learning dbt from Zero
+
+Started learning dbt with no assumed background. Everything below is what I have worked through so far: four hands-on lessons, run locally with DuckDB (no cloud account needed). This post compresses what stuck with me.
+
+## What dbt Is
+
+dbt (data build tool) does the "T" in ELT — transform. The core loop:
+
+1. You write a **model**: a `.sql` file containing a `select` statement.
+2. `dbt run` compiles it and **materializes** the result into a table or view in your warehouse.
+3. dbt also manages dependency order, tests, documentation, and lineage for you.
+
+No boilerplate for creating tables or scheduling — you just write selects.
+
+## The Data Flow of My First Project
+
+```
+seeds/*.csv  --dbt seed-->  warehouse tables  --staging models-->  views (cleaned)
+                                                                    |
+                                              --marts model-->  table (business summary)
+```
+
+- `staging` layer: clean the raw data (rename columns, cast types). Materialized as **views**.
+- `marts` layer: join and aggregate for business use. Materialized as **tables**.
+
+## View vs Table
+
+| Aspect | View | Table |
+| --- | --- | --- |
+| Stores | Only the SQL query | Real data |
+| On query | Recomputes every time | Reads stored result |
+| Source changes | Always up to date | Stays stale until `dbt run` |
+| Space | Almost none | Uses storage |
+| Use for | Light cleanup, middle layers | Frequently queried final results |
+
+One-line mental model: a view is a saved formula (recomputed live); a table is a saved copy (a snapshot at build time). I verified this empirically: switching `staging` from view to table made my `dev.duckdb` file grow from ~1.0M to ~1.8M.
+
+## Source vs ref
+
+- `{{ ref('model_name') }}` references models **dbt builds itself**.
+- `{{ source('raw', 'products') }}` declares an **external raw table** already in the warehouse (written by upstream sync tools, not by dbt).
+
+Both are Jinja expressions. dbt compiles them into real table names — `{{ source('raw', 'products') }}` becomes `"dev"."raw"."products"` in `dbt compile` output. That compilation is also how dbt knows your dependency graph (lineage).
+
+## Commands to Use
+
+| Command | What it does |
+| --- | --- |
+| `dbt seed` | Load CSVs from `seeds/` into warehouse tables |
+| `dbt run` | Build models into views/tables, in dependency order |
+| `dbt test` | Run data quality checks defined in `schema.yml` |
+| `dbt show --select x` | Preview a model's result |
+| `dbt show --inline "sql"` | Run arbitrary SQL against the warehouse |
+| `dbt compile` | Show the final SQL after Jinja compilation |
+| `dbt docs generate / serve` | Generate and browse lineage + documentation |
+
+## Key Lessons
+
+- Models never read CSV files directly — `dbt seed` turns them into warehouse tables first.
+- A view reflects new source data immediately; a table does not — rerun `dbt run` to refresh it.
+- `dev.duckdb` is only a local sandbox simulating a warehouse. In production, the engineer's input is **code** (the dbt project in Git); the data already lives in the warehouse, synced from business systems by ELT tools. Same code runs across dev → staging → prod environments.

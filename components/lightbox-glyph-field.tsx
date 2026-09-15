@@ -78,7 +78,7 @@ export function LightboxGlyphField({ image }: { image: HTMLImageElement }) {
     let lastDraw = -Infinity;
     const startedAt = performance.now();
     const makeGlyph = (x: number, y: number, born: number): Glyph => ({
-      x, y, born, life: 0.5 + Math.random() * 0.5, changeAt: born + 0.08,
+      x, y, born, life: 0.5 + Math.random() * 1.5, changeAt: born + 0.08,
       character: randomCharacter(), seed: Math.random() * 1000,
     });
     const resize = () => {
@@ -122,9 +122,7 @@ export function LightboxGlyphField({ image }: { image: HTMLImageElement }) {
         }
         // Brief local gaps rather than a synchronized full-image flash.
         if (elapsed > 0.08 && noise(elapsed * 12, glyph.seed + 9) < 0.19) continue;
-        context.fillText(glyph.character,
-          clamp(glyph.x * width + (noise(elapsed * 0.8, glyph.seed) - 0.5) * 9, fontSize / 2, width - fontSize / 2),
-          clamp(glyph.y * height + (noise(elapsed * 0.7, glyph.seed + 4) - 0.5) * 9, fontSize / 2, height - fontSize / 2));
+        context.fillText(glyph.character, glyph.x * width, glyph.y * height);
       }
       context.globalAlpha = 1;
     };
@@ -143,14 +141,28 @@ export function LightboxGlyphField({ image }: { image: HTMLImageElement }) {
     // glyphs are never replaced, including after resize or a visibility change.
     const fontSize = width < 500 ? 12 : 14;
     const budget = Math.round(clamp(Math.round(width * height / 14000), 36, 72) * 0.5);
-    if (width && height) while (glyphs.length < budget) {
+    // The display-aligned lattice produces roughly 1,000–2,000 cells on a
+    // desktop photograph. Glyphs sit at cell centers and never share a cell.
+    const columns = Math.max(1, Math.floor(width / (fontSize * 1.15)));
+    const rows = Math.max(1, Math.floor(height / (fontSize * 1.15)));
+    const occupied = new Set<number>();
+    let attempts = 0;
+    if (width && height) while (glyphs.length < budget && attempts < budget * 24) {
+      attempts += 1;
       const point = weightedPoint();
       const chain = Math.random() < 0.18 ? 2 + Math.floor(Math.random() * 7) : 1;
       const count = Math.min(chain, budget - glyphs.length);
-      const slant = Math.random() < 0.5 ? 0 : (Math.random() < 0.5 ? -0.45 : 0.45);
+      const column = clamp(Math.floor(point.x * columns), 0, columns - 1);
+      const row = clamp(Math.floor(point.y * rows), 0, rows - 1);
+      const slant = Math.random() < 0.5 ? 0 : (Math.random() < 0.5 ? -1 : 1);
       for (let i = 0; i < count; i++) {
-        glyphs.push(makeGlyph(clamp(point.x + i * slant * fontSize / width, 0.025, 0.975),
-          clamp(point.y + i * fontSize * 1.1 / height, 0.025, 0.975), 0));
+        const glyphColumn = column + i * slant;
+        const glyphRow = row + i;
+        if (glyphColumn < 0 || glyphColumn >= columns || glyphRow >= rows) break;
+        const cell = glyphRow * columns + glyphColumn;
+        if (occupied.has(cell)) continue;
+        occupied.add(cell);
+        glyphs.push(makeGlyph((glyphColumn + 0.5) / columns, (glyphRow + 0.5) / rows, 0));
       }
     }
     const observer = new ResizeObserver(resize);

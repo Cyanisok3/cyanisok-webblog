@@ -8,8 +8,8 @@ export const profile = {
   nationality: 'China',
   role: 'UG-Y4 Student',
   tagline: ['CREATE YOUR ART NOW', 'INSPIRE SOULS OFFER KINDNESS'],
-  portrait: '/me.png',
-  background: '/shanghai.png',
+  portrait: '/me.webp',
+  background: '/shanghai.webp',
   researchDirections: [] as string[],
   biography: [
     'Do you know?',

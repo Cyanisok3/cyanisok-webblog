@@ -15,8 +15,8 @@ export default function AboutPage() {
     <div className="inner-shell">
       <InnerNavigation active="about" label="About navigation" />
       <header className="about-page-heading">
-        <p>ABOUT / Cyanisok’s Virtual ID Card</p>
         <h1>Introducing MYSELF...</h1>
+        <p>ABOUT / Cyanisok’s Virtual ID Card</p>
       </header>
       <AboutCard profile={profile} />
       <section className="about-profile" aria-label="Personal information">

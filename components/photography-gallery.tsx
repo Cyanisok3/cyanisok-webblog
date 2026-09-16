@@ -87,14 +87,23 @@ function LightboxImage({ photo }: { photo: Photograph }) {
   const [colorFailed, setColorFailed] = useState(false);
   const [monoFailed, setMonoFailed] = useState(false);
   const [ready, setReady] = useState(false);
+  const [presented, setPresented] = useState(false);
   const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const size = colorFailed ? photo.monoSize : photo.colorSize;
   const source = colorFailed ? photo.monoSrc : photo.colorSrc;
 
+  useEffect(() => {
+    if (!ready) return;
+    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 260;
+    const timer = window.setTimeout(() => setPresented(true), delay);
+    return () => window.clearTimeout(timer);
+  }, [ready, source]);
+
   function failed(image: HTMLImageElement) {
     if (imageRef.current !== image) return;
     setReady(false);
+    setPresented(false);
     setLoadedImage(null);
     if (colorFailed) setMonoFailed(true); else setColorFailed(true);
   }
@@ -113,7 +122,7 @@ function LightboxImage({ photo }: { photo: Photograph }) {
           } catch { failed(image); }
         }} onError={(event) => failed(event.currentTarget)} />}
       {glyphPhotoIds.has(photo.id) && ready && loadedImage && <LightboxGlyphField image={loadedImage} />}
-      {!ready && <output className="photography-loading">{monoFailed ? 'This photograph could not be loaded.' : 'Loading photograph…'}</output>}
+      {!presented && <output className={`photography-loading${ready ? ' is-leaving' : ''}`}>{monoFailed ? 'This photograph could not be loaded.' : 'Loading photograph…'}</output>}
       {colorFailed && !monoFailed && <output className="photography-fallback">Color version unavailable — showing monochrome.</output>}
     </>
   );

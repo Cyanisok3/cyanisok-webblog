@@ -8,15 +8,19 @@
 .about-page-heading h1 { margin: 18px 0 0; font: 400 clamp(38px, 4.5vw, 64px)/1.12 var(--serif); letter-spacing: -0.035em; }
 .about-card-figure { max-width: 1000px; margin: 32px auto 0; }
 .about-card-stage { position: relative; width: 100%; aspect-ratio: 1.3; }
-.about-card-webgl { position: absolute; inset: 0; opacity: 0; transition: opacity 250ms; }
-.about-card-webgl.is-ready { opacity: 1; }
-.about-card-flat { position: absolute; width: 88.1%; aspect-ratio: 903 / 662; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 5.3% / 7.2%; background: #e9e8e1; border: 2px solid #fff9; box-shadow: 0 28px 42px #0007, inset 0 2px 5px #fff; transition: opacity 250ms; }
+.about-card-webgl { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 360ms ease; }
+.about-card-webgl.is-ready { opacity: 1; pointer-events: auto; }
+.about-card-flat { position: absolute; width: 88.1%; aspect-ratio: 903 / 662; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 5.3% / 7.2%; background: #e9e8e1; border: 2px solid #fff9; box-shadow: 0 28px 42px #0007, inset 0 2px 5px #fff; transition: opacity 360ms ease, filter 360ms ease; }
+.about-card-flat.is-loading { filter: saturate(.72) brightness(.82); }
+.about-card-flat.is-loading::after { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(105deg, transparent 34%, rgb(255 255 255 / 16%) 48%, transparent 62%); content: ''; pointer-events: none; transform: translateX(-115%); animation: about-card-loading-sweep 1.35s ease-in-out infinite; }
 .about-card-flat.is-hidden { opacity: 0; pointer-events: none; }
 .about-card-slot { position: absolute; top: 3.3%; left: 39.8%; width: 23.3%; height: 4.3%; background: #0d0d0c; border-radius: 99px; box-shadow: inset 0 2px 3px #0009; }
 .about-card-print { position: absolute; inset: 11.9% 4.7% 6.2% 4.9%; overflow: hidden; border-radius: 3% / 4.4%; background: #f6f4ec; box-shadow: 0 7px 15px #0004, 0 0 0 5px #ffffff45; }
 .about-card-print img { display: block; width: 100%; height: 100%; }
 .about-card-placeholder { color: #222; display: grid; gap: 12px; padding: 8%; font: 500 clamp(12px, 2vw, 25px)/1.3 var(--sans); }
 .about-card-placeholder strong { color: #f6f4ec; background: #060606; padding: 12px; }
+.about-card-loading-status { position: absolute; z-index: 3; bottom: 4.5%; left: 50%; transform: translateX(-50%); padding: 7px 10px; border: 1px solid #f8f6ef24; background: #0d0d0ccc; color: #b8b6ad; font: 9px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; pointer-events: none; opacity: 1; transition: opacity 180ms ease; }
+.about-card-loading-status.is-hidden { opacity: 0; }
 .about-card-figure figcaption { display: flex; justify-content: space-between; gap: 20px; padding: 16px 0 32px; color: #97968d; font: 10px/1.5 var(--mono); }
 .about-profile { display: grid; grid-template-columns: 276px minmax(0, 1fr); gap: 48px; max-width: 1140px; margin: 60px auto 120px; padding-top: 36px; border-top: 1px solid #f8f6ef28; }
 .about-profile h2 { font: 400 32px/1.2 var(--serif); max-width: 240px; margin: 20px 0 32px; }
@@ -46,4 +50,8 @@
   .about-profile-facts dt { font-size: 10px; }
   .about-page-footer { gap: 16px; font-size: 9px; }
 }
-@media (prefers-reduced-motion: reduce) { .about-card-flat, .about-card-webgl { transition: none; } }
+@keyframes about-card-loading-sweep { to { transform: translateX(115%); } }
+@media (prefers-reduced-motion: reduce) {
+  .about-card-flat, .about-card-webgl, .about-card-loading-status { transition: none; }
+  .about-card-flat.is-loading::after { animation: none; display: none; }
+}

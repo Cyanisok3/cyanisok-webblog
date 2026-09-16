@@ -33,8 +33,8 @@ export function AboutCard({ profile }: { profile: Profile }) {
   }, [profile, fail]);
 
   return <figure className="about-card-figure">
-    <div className="about-card-stage" aria-label={`ID card for ${profile.name}, ${profile.education}. Full text follows below.`}>
-      <div className={`about-card-flat${sceneReady ? ' is-hidden' : ''}`} aria-hidden="true">
+    <div className="about-card-stage" aria-busy={!sceneReady && !failed} aria-label={`ID card for ${profile.name}, ${profile.education}. Full text follows below.`}>
+      <div className={`about-card-flat${sceneReady ? ' is-hidden' : failed ? '' : ' is-loading'}`} aria-hidden="true">
         <div className="about-card-slot" />
         <div className="about-card-print">
           {preview ? <img src={preview} alt="" /> : <div className="about-card-placeholder"><strong>{profile.handle}</strong><span>{profile.name}</span><span>{profile.education}</span></div>}
@@ -43,6 +43,7 @@ export function AboutCard({ profile }: { profile: Profile }) {
       {card && !failed && <div className={`about-card-webgl${sceneReady ? ' is-ready' : ''}`} aria-hidden="true">
         <SceneBoundary onFailure={fail}><Suspense fallback={null}><Scene card={card} onReady={ready} onFailure={fail} /></Suspense></SceneBoundary>
       </div>}
+      {!failed && <output className={`about-card-loading-status${sceneReady ? ' is-hidden' : ''}`} aria-live="polite">{card ? 'Rendering perspective…' : 'Preparing card…'}</output>}
     </div>
     <figcaption><span>01 / PERSONAL IDENTIFICATION</span><span>{failed ? 'Flat view' : 'A little perspective changes everything.'}</span></figcaption>
   </figure>;

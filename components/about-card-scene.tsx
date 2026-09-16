@@ -35,6 +35,8 @@ function extrude(shape: THREE.Shape, depth: number, bevel: number) {
 
 function CardModel({ card, onReady }: { card: HTMLCanvasElement; onReady: () => void }) {
   const group = useRef<THREE.Group>(null);
+  const readyFrame = useRef(0);
+  const reportedReady = useRef(false);
   const { gl, scene, camera, size, invalidate } = useThree();
   const target = useRef({ x: 0, y: 0 });
   const velocity = useRef({ x: 0, y: 0 });
@@ -129,15 +131,17 @@ function CardModel({ card, onReady }: { card: HTMLCanvasElement; onReady: () => 
       + Math.abs(target.current.x - group.current.rotation.x) + Math.abs(target.current.y - group.current.rotation.y) > 0.0001) invalidate();
   });
 
-  useEffect(() => {
-    const frame = requestAnimationFrame(onReady);
-    return () => cancelAnimationFrame(frame);
-  }, [onReady]);
+  const reportRendered = () => {
+    if (reportedReady.current) return;
+    reportedReady.current = true;
+    readyFrame.current = requestAnimationFrame(onReady);
+  };
+  useEffect(() => () => cancelAnimationFrame(readyFrame.current), []);
   useEffect(() => () => texture.dispose(), [texture]);
   useEffect(() => () => Object.values(geometry).forEach((item) => item.dispose()), [geometry]);
 
   return <group ref={group}>
-    <mesh geometry={geometry.back} position={[0, 0, -0.12]} castShadow receiveShadow>
+    <mesh geometry={geometry.back} position={[0, 0, -0.12]} castShadow receiveShadow onAfterRender={reportRendered}>
       <meshPhysicalMaterial color="#e7e6de" roughness={0.38} clearcoat={0.6} />
     </mesh>
     <mesh geometry={geometry.rim} position={[0, 0, -0.08]} castShadow receiveShadow>

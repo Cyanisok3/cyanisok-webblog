@@ -1,8 +1,12 @@
 .photography-page {
+  position: relative;
+  overflow: clip;
   background: #0d0d0c;
   color: #f8f6ef;
   min-height: 100svh;
 }
+.photography-page::before { position: absolute; z-index: 0; top: 148px; bottom: 96px; left: 10px; width: 13px; content: ''; pointer-events: none; background-image: repeating-linear-gradient(to bottom, rgb(248 246 239 / 34%) 0 1px, transparent 1px 60px), repeating-linear-gradient(to bottom, rgb(248 246 239 / 20%) 0 1px, transparent 1px 12px); background-position: left top; background-size: 13px 60px, 5px 12px; background-repeat: repeat-y; }
+.photography-shell { position: relative; z-index: 1; }
 
 .photography-nav nav a { position: relative; }
 .photography-nav nav a[aria-current], .photography-nav nav a:hover, .photography-nav nav a:focus-visible { opacity: 1; }
@@ -107,6 +111,7 @@
 .photography-lightbox[data-starting-style],
 .photography-lightbox[data-ending-style] { opacity: 0; }
 @media (max-width: 1100px) {
+  .photography-page::before { display: none; }
   .photography-archive { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .photography-notes { padding: 12px 0 0; display: flex; justify-content: space-between; gap: 30px; align-items: start; }
   .photography-index { margin: 0; }

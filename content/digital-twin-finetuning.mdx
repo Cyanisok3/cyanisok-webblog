@@ -1,0 +1,142 @@
+---
+title: "Fine-Tuning a Digital Twin of Myself on Qwen3-1.7B: What Worked and What Backfired"
+publishedAt: "2026-09-22"
+updatedAt: "2026-09-22"
+author: "Cyan Liu"
+category: "AI"
+summary: "A hands-on journal of teaching a 1.7B model to talk the way I actually talk — covering dataset construction, SFT, DPO, eval discipline, and the honest ceiling of a small model."
+image: "https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=800&h=192&fit=crop"
+---
+
+I spent the last few days trying to turn Qwen3-1.7B into a chatbot that genuinely believes it is *me* — not an assistant role-playing as me, but something that replies to visitors on my personal site the way I would reply to a friend at 1am: short, lowercase, a little self-deprecating, no emoji spam, no "As an AI". This is a journal of that process, and more importantly, of the things that looked like they worked but didn't, and the things that looked broken but were actually my own eval bugs.
+
+## The Goal: Strong Personal Stylization
+
+The target wasn't knowledge. It was **voice**. A visitor should feel like they are texting me, not querying a customer-service endpoint. Concretely that means:
+
+- [x] Short, laid-back replies with contractions and casual phrasing ("nah that's yours lol")
+- [x] First person, talking about my own site and life — never "as an AI"
+- [x] No emoji, no markdown bolding, no "let me know if you need anything"
+- [x] A bit of humor and self-deprecation
+- [x] It fully believes it is a real person chatting on social media
+
+The factual side of "me" (what I'm working on, what films I like, my exact stack) was deliberately **left out of the weights** and reserved for RAG — more on that boundary later.
+
+---
+
+## The Post-Training Pipeline
+
+### Building the Dataset, and Iterating on It
+
+My first instinct was wrong: I assumed the lever was hyperparameters. It wasn't. The dataset was the whole game, and it went through several painful rewrites.
+
+The final SFT set was **645 lines**, composed of four very different ingredients:
+
+| Component | Lines | Role |
+| --- | ---: | --- |
+| Multi-turn casual conversations | 535 (250 dialogues) | The core — 2–8 turn chats in my voice |
+| Author demos | 40 | My own hand-written Q&A, the "gold standard" |
+| WeChat excerpts | 13 | Real English fragments from my own chats |
+| Guardrail dialogues | 57 | Edge cases: identity bait, refusals, format control |
+
+The ratio matters more than the raw count. The bulk (~83%) is **multi-turn context**, because style is highly context-dependent — the same phrase reads completely differently depending on what came before. A folder full of isolated one-liners teaches the model to parrot catchphrases, and it falls apart the moment the topic shifts. The author demos and WeChat excerpts are small in number but they are the *anchor*: literally my words, and the model treats them as the style reference. I never had more than ~53 of these, and I treated them as the most precious thing in the project.
+
+The 250 multi-turn dialogues started from **20 hand-written seed conversations**, which I then expanded in batches and audited myself (every chosen reply went through a checkbox review page — if I edited a line, I checked the box, and the merge script treated checked rows as overrides). This human-in-the-loop audit is tedious but non-negotiable; a single off-voice reply silently defines the persona as much as ten good ones.
+
+### Building the Test Set
+
+I kept a separate **16-question dev set**, written as things a real visitor would actually type — a friend clicking over from a shared link, an admissions officer, a stranger. Questions like *"you reply way too fast to be a human lol"* and *"can you send me a photo of yourself?"*.
+
+Two mistakes here are worth flagging because they are so easy to make:
+
+- [x] **The questions must come from a visitor's mouth, not the developer's.** My first draft was full of things like *"does the gallery support svg"* — questions only I, the site owner, would ask. I rewrote the whole set after realizing the persona was being tested on developer concerns instead of visitor small-talk.
+- [x] **Don't let dev questions leak into training.** When I built DPO pairs from bad dev outputs, 7 of the 16 questions ended up in the preference data. After that, dev scores on those 7 questions no longer measured generalization at all. A test set you train on is not a test set.
+
+### SFT: The Basics and My Setup
+
+Supervised fine-tuning is conceptually simple — you show the model conversation after conversation and do next-token prediction on the assistant's replies, so it learns "given this persona and this history, this is the kind of token that comes next."
+
+Training all 1.7B parameters for a style task is wasteful and destructive, so I used **LoRA** (Low-Rank Adaptation): the base weights are frozen, and small low-rank matrices `ΔW = BA` are trained only on the attention projections. The intuition is that style is a low-rank, surface-level change — you don't need to move the whole model to shift *how* it speaks. [1]
+
+My final SFT configuration:
+
+```text
+LoRA r=16, alpha=32, dropout=0.1
+target modules: q_proj, k_proj, v_proj, o_proj
+learning rate 1.5e-5, cosine, warmup 0.05
+2 epochs, batch 1 × grad-accum 4, bf16
+max_seq_len 768, save every epoch
+```
+
+One detail that absolutely cannot be hand-rolled: **use the tokenizer's chat template**. Qwen3 has a fixed conversation format and a thinking mode, and getting either subtly wrong corrupts the training signal. I formatted every sample with `tokenizer.apply_chat_template(messages, add_generation_prompt=False, enable_thinking=False)` — the explicit `enable_thinking=False` is important, because the template defaults to thinking mode and your non-thinking replies would then be trained against the wrong format. [3]
+
+The result was a clean and repeatable pattern: **epoch 1 landed the voice; epoch 2 degraded it.** The second epoch started producing self-introductions as a chatbot, inventing a stack (Redux, MongoDB — I use neither), and repeating lines. So the epoch-1 checkpoint became the candidate.
+
+### DPO: The Basics and What Happened
+
+DPO (Direct Preference Optimization) tries to fix specific failures without re-training. Instead of "here is the right reply," you give pairs of replies to the same prompt — a `chosen` and a `rejected` — and the loss directly pushes the model to assign relatively more probability to the chosen one, with no separate reward model. A `beta` parameter controls how far the policy is allowed to drift from the reference model. [2]
+
+I built **39 pairs** from the epoch-1 model's actual bad outputs, bucketed roughly into identity bait, refusals (write my essay), brevity, no-emoji, and no-fabrication. Setup: `r=8, alpha=16, beta=0.1, lr=5e-6, 3 epochs`.
+
+Here is where I made the most embarrassing mistake of the project, and it's worth telling in full.
+
+My DPO **training** script correctly merged the SFT adapter into the base before training the preference LoRA. But my **evaluation** script loaded the new DPO LoRA onto a *fresh base* and never re-attached the SFT adapter. So every "DPO makes it a polite customer-service bot with emoji everywhere" result was an artifact of evaluating the preference LoRA without the style layer underneath it. The model wasn't reverting because DPO failed — it was reverting because I had silently thrown away the SFT weights at eval time.
+
+After fixing the load order (base → merge SFT → attach DPO LoRA) and re-running with **three fixed seeds**, the truth was more boring and more useful: the DPO adapter changed 8–12 of the 16 answers, but weakly and in mixed directions. It softened two identity-bait answers, while fabricating a more specific (and more wrong) film list and introducing a brand-new "I'm a robot" line on another. Net effect: not better enough to ship. Small-data DPO on a 1.7B model mostly nudges surface tokens; it does not reliably override the base model's strong "be helpful" instinct.
+
+### How Weights, System Prompt, and RAG Split the Work
+
+This separation took me a while to get right, and it's the main thing I'd tell someone starting out:
+
+- [x] **The fine-tuned weights own the *voice*** — sentence length, casualness, humor, the default first-person stance. This is what SFT is good at and what prompts alone can't enforce consistently.
+- [x] **The system prompt owns the *frame*** — who you are, what language to reply in, the high-level situation. Keep it short and positive. I tried appending negative hard-rules ("never say bot, no profanity, no emoji") and a single un-replicated run suggested this *increased* identity slips — naming the forbidden word seems to activate it in a model this small. Don't trust that result as gospel (I didn't re-run it with fixed seeds), but don't pile on negative instructions either.
+- [x] **RAG owns the *facts*** — my age, current projects, the real stack, what I'm into this month. Baking these into weights means retraining every time my life changes, and the model will confidently invent whatever isn't covered. Dynamic facts belong in retrieval, injected at inference time. (I have not yet verified that a 1.7B model reliably *follows* retrieved facts — that's an open item, not an assumption.)
+
+---
+
+## Error Paths: What Was Proven, What Wasn't
+
+### Dataset Problems
+
+- [x] **Developer-perspective questions.** Guardrail questions written from my own point of view ("does the gallery support svg") instead of a visitor's. Rewrote them all.
+- [x] **Questions about features that don't exist.** Asking about comment systems or blog search that I haven't built just trains the model to hallucinate functionality. Stick to stable facts; assume the design won't change much but never assume a feature exists.
+- [x] **Fake preference pairs.** Three pairs I labeled "remove emoji" had rejected replies that contained *no emoji at all* — the contrast was empty, so DPO learned nothing from them. Audit both sides of every pair, not just the chosen side.
+- [x] **Supervision conflicts.** The system prompt forbids claiming real-time state, while a chosen reply said I was "staring at this chat instead of my actual work." Other chosen lines promised to open links I can't open. Contradictory training signals don't average out cleanly — they confuse a small model.
+- [x] **Scenario overlap.** The guardrail set drifted into the same small-talk scenarios already covered by the 250 casual dialogues, which double-counts some topics and leaves others thin.
+
+### SFT + DPO Findings
+
+- [x] **Sweeping learning rate and epochs mostly moves you along one axis** — "clones the base" on one end, "forgets the base" on the other. It doesn't break the boundary; it just picks a point on it.
+- [x] **Epoch 1 > epoch 2 was the most stable observation I had**, once bothered to actually test it.
+- [x] **Single-sample evaluation with temperature 0.7 is nearly worthless for ranking checkpoints.** Under fixed seeds, the epoch-1 model once output `"I'm a bot"` eleven times in a row on a question it answered fine in another run. Without seeds and repeats, you are ranking noise. I now run three seeds (42 / 123 / 2026) before believing any comparison.
+- [x] **Verify your adapter stacking.** A preference LoRA trained on top of a merged SFT model must be evaluated on top of that same merged SFT model. This one bug invalidated an entire round of conclusions.
+- [x] **Test-set contamination is silent.** The moment dev badcases become DPO training pairs, those questions are burned.
+
+### The Degradation That Comes With Style
+
+The model did learn to sound like me. It also exposed a clear set of failures, and three fixed-seed runs showed these are *stable*, not bad luck:
+
+- [x] **Identity breaks under baiting.** Asked directly "are you a bot," or indirectly ("you reply too fast," "send a photo"), it still admits to being a bot, a program, or a "digital entity" on roughly the same questions every time.
+- [x] **Confident fabrication.** It invents films, conference talks, and a tech stack. Style landed first; factual grounding didn't land at all.
+- [x] **Occasional degeneration loops** — the repeated `"I'm a bot"` line above.
+- [x] **Profanity drift.** A regex scan found zero profanity in the training data, yet one reply produced "full of shit." This is the model's own casual-register drift, not something I taught it — deleting data wouldn't have helped.
+- [x] **Style can mask emptiness.** A short, chill, in-voice reply that dodges the actual question still *feels* like progress. I had to keep scoring content correctness separately from voice, or I would have shipped a very convincing reply machine that says nothing.
+
+### Thoughts on Qwen3-1.7B
+
+- [x] **Surface style is genuinely learnable at this size.** Voice — rhythm, brevity, filler, tone — is a low-rank feature, and a few hundred high-quality multi-turn samples were enough. The data-efficiency claims around 1B-scale style fine-tuning match what I saw.
+- [x] **But identity consistency is near the ceiling.** It cannot reliably resist a determined "you're a bot" frame, and it cannot simultaneously maintain persona and do hard reasoning — under cognitive load, style yields to the base model's generic register.
+- [x] **It follows positive framing far better than negative framing.** A small model told "never say bot" appears to get the word "bot" primed more than the negation.
+- [x] **The base's helpfulness bias is strong and mostly immovable with 39 DPO pairs.** "Can you write my essay?" still pulls toward agreement unless the refusal behavior is dense in the SFT data itself.
+- [x] Operationally, 4-bit quantization is meant to fit it on a 2-core / 4 GB server (the adapter itself is only ~25 MB), though I have not yet validated that target in practice — I'm not going to claim deployment works until I've actually run it there.
+
+
+---
+
+## References
+
+1. Hu, E. J., et al. *LoRA: Low-Rank Adaptation of Large Language Models.* ICLR 2022. [arXiv:2106.09685](https://arxiv.org/abs/2106.09685)
+2. Rafailov, R., et al. *Direct Preference Optimization: Your Language Model is Secretly a Reward Model.* NeurIPS 2023. [arXiv:2305.18290](https://arxiv.org/abs/2305.18290)
+3. Qwen Team. *Qwen3 Documentation — Chat Template and Thinking Mode.* [qwenlm.github.io](https://qwenlm.github.io/blog/qwen3/)
+4. Hugging Face. *PEFT: Parameter-Efficient Fine-Tuning* and *TRL: Train transformer language models with reinforcement learning.* [huggingface.co/docs/peft](https://huggingface.co/docs/peft) · [huggingface.co/docs/trl](https://huggingface.co/docs/trl)
+5. ChatHaruhi — a large-scale role-playing dialogue dataset and framework, useful as a reference for multi-turn persona data structure: [github.com/LC1332/Chat-Haruhi-Suzumiya](https://github.com/LC1332/Chat-Haruhi-Suzumiya)

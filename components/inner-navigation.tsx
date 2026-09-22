@@ -1,6 +1,6 @@
 /* oxlint-disable nextjs/no-html-link-for-pages -- vinext currently requires native anchors for client navigation; see the routing note below. */
 type InnerNavigationProps = {
-  active: 'photography' | 'blog' | 'about';
+  active: 'photography' | 'blog' | 'about' | null;
   className?: string;
   label: string;
 };

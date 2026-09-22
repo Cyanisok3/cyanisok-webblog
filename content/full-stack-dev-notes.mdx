@@ -1,0 +1,103 @@
+---
+title: "Full Stack Development Notes"
+publishedAt: "2026-09-19"
+updatedAt: "2026-09-19"
+author: "Cyan Liu"
+category: "Engineering"
+summary: "Notes from building a full-stack NL2SQL agent project — React, Next.js, frontend-backend separation, and JavaScript fundamentals."
+---
+
+## Frontend Basics
+
+**Q: What changes when "the variable changed" in useState? Does `messages`, `setMessages`, `input`, or `setInput` change?**
+
+`messages` is read-only. You cannot mutate it directly. Calling `setMessages(newValue)` tells React to create a new `messages` and re-render the component. The function `setMessages` itself never changes — only the value it produces on next render.
+
+> **useState**: A React hook that returns `[currentValue, setterFunction]`. The setter triggers a re-render; the current value reflects the latest state.
+
+---
+
+**Q: What does "binding input value to state" mean? What is DOM?**
+
+`value={input}` means the input element displays whatever `state.input` currently holds. When the user types, `onChange` calls `setInput` to update state, then React re-renders and the input shows the new value.
+
+> **DOM (Document Object Model):** A tree of element nodes that the browser builds from HTML. Every visible element on the page (input, button, div) is a DOM node. React manipulates this tree on your behalf when state changes.
+
+> **One-way data flow:** State is the single source of truth. UI is a function of state. You never mutate the DOM directly — you update state and let React re-render.
+
+---
+
+**Q: Why is state so important in React?**
+
+React's core idea: **UI is a mapping of state**. State changes → React automatically re-renders the UI. This replaces imperative DOM manipulation (jQuery style) with declarative rendering. You describe what the UI looks like for a given state; React handles the DOM updates.
+
+---
+
+**Q: What are common ways to update state?**
+
+```jsx
+// Direct value
+setCount(5);
+
+// Functional update (based on previous value)
+setCount(prev => prev + 1);
+
+// Update object (immutable)
+setUser({ ...user, name: "Alice" });
+
+// Update array (immutable)
+setList([...list, newItem]);           // append
+setList(list.filter(x => x !== 2));    // remove
+setList(list.map(x => x * 2));         // transform
+
+// Reset
+setInput("");
+```
+
+> **Immutable update rule:** Never mutate the original state directly (e.g. `arr.push()`, `obj.key = value`). Always create a new object or array. React compares by reference — a new reference triggers a re-render; a mutated old reference does not.
+
+---
+
+**Q: Is `key` only needed when rendering lists with `map`? Explain `map`.**
+
+`key` is a JSX requirement only when rendering lists via `map`. It helps React track which items are added, removed, or moved. Plain JavaScript `map` calls do not need keys.
+
+`map` creates a new array by applying a function to each element:
+
+```jsx
+[1, 2, 3].map(x => x * 2)        // [2, 4, 6]
+messages.map((m, i) => <div key={i}>{m.content}</div>)
+```
+
+> **Array.map(callback):** Takes a function that receives `(currentValue, index, array)` and returns a new array. Similar to `map` in Haskell — traverse each element, apply the function, collect results. The `index` argument is JavaScript-specific.
+
+---
+
+## Next.js Architecture
+
+**Q: Why `use client` vs `use server`? Is this for separating frontend and backend? Performance?**
+
+Both performance and security. By default, Next.js App Router renders components on the server (Server Components) — no React JS is sent to the browser. `useState`, `onClick`, and `fetch` are browser APIs, so they require `"use client"`. `"use server"` marks functions that run exclusively on the server, where they can safely access databases and secrets without exposing them to the client.
+
+> **Server Component:** Renders on the server, ships zero JS to the browser. Good for data fetching and static content.
+> **Client Component:** Renders in the browser. Required for interactivity (buttons, inputs, state). Marked with `"use client"`.
+
+---
+
+## Frontend-Backend Integration
+
+**Q: What is a cross-origin request? Why did the browser block `fetch` to `localhost:8000`?**
+
+Browsers enforce the same-origin policy: a page can only request APIs from the same protocol + domain + port. Frontend on `localhost:3000` calling backend on `localhost:8000` has a different port — this is cross-origin. The browser sends an `OPTIONS` preflight request first; if the backend does not respond with proper CORS headers, the browser blocks the actual request.
+
+> **CORS (Cross-Origin Resource Sharing):** A mechanism where the backend tells the browser which origins are allowed to access its resources. In FastAPI, this is configured via `CORSMiddleware`.
+
+---
+
+**Q: When do frontend and backend share a port? Pros and cons?**
+
+Server-side rendering (SSR), traditional template rendering (JSP, Django templates), and full-stack single apps (Next.js API Routes). The backend renders HTML directly and serves it on the same port.
+
+**Pros:** No CORS issues, simpler deployment, better SEO, faster initial render.
+
+**Cons:** Frontend and backend are coupled, cannot deploy or scale independently, teams cannot work in parallel, and interactivity feels less like an app (full page reloads).

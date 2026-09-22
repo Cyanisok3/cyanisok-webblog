@@ -1,0 +1,336 @@
+---
+title: "Building an NL2SQL Agent from Scratch"
+publishedAt: "2026-09-17"
+updatedAt: "2026-09-17"
+author: "Cyan Liu"
+category: "AI-agent"
+summary: "Reading through an open-source NL2SQL project, I rewrote the core pipeline in Python: ReAct loop, semantic layer reverse-matching, SQL AST guardrails, and SSE streaming. This post documents the design decisions and actual code for each layer."
+image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=192&fit=crop"
+---
+
+# Building an NL2SQL Agent from Scratch
+
+After reading through an open-source NL2SQL project, I decided to rewrite the core pipeline in Python. The goal wasn't to replicate features, but to push each layer's design intent into code I can actually run.
+
+Final project structure:
+
+```text
+python-demo/
+├── main.py            # FastAPI entry, two HTTP endpoints
+├── react_loop.py      # ReAct loop (non-streaming + streaming variants)
+├── llm.py             # LLM client (DeepSeek, OpenAI-compatible)
+├── tools.py           # Tool registry
+├── semantic_layer.py  # Semantic layer: three indexes + reverse matching
+├── sql_guard.py       # SQL guardrail (sqlglot AST validation)
+└── api_key.txt        # API key (not committed)
+```
+
+> **NL2SQL**: Natural Language to SQL. Users ask questions in plain language; the system auto-generates and executes SQL, then returns results.
+
+---
+
+## Request Lifecycle
+
+Start with the full pipeline, then unpack each layer:
+
+```text
+POST /chat/stream
+    │
+    ▼
+main.py                # Receives HTTP request, starts SSE stream
+    │
+    ▼
+react_loop.py          # ReAct loop: think → act → think → act → ...
+    │
+    ├──▶ llm.py        # Calls LLM to decide next step (tool call or final answer)
+    │       │
+    │       ▼
+    │     DeepSeek API  # Real model inference
+    │
+    ├──▶ tools.py      # Executes tools
+    │       │
+    │       ├──▶ semantic_layer.py  # Semantic layer: match relevant tables/metrics
+    │       │
+    │       └──▶ sql_guard.py       # SQL guardrail: AST validation before execution
+    │
+    ▼
+yield events → SSE frames → frontend renders in real time
+```
+
+---
+
+## main.py: HTTP Entry
+
+Two endpoints: non-streaming `/chat` and streaming `/chat/stream`.
+
+```python title="main.py"
+import json
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from react_loop import run_react, run_react_stream
+
+app = FastAPI(title="Data Agent Demo", version="0.2")
+
+class ChatRequest(BaseModel):
+    message: str
+
+@app.post("/chat")
+def chat(req: ChatRequest):
+    return run_react(req.message)
+
+@app.post("/chat/stream")
+def chat_stream(req: ChatRequest):
+    def event_generator():
+        for event in run_react_stream(req.message):
+            yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+```
+
+> **FastAPI**: A Python web framework, lightweight compared to Spring Boot. `@app.post("/chat")` is a decorator meaning "when a POST request arrives at /chat, call this function."
+>
+> **Pydantic / BaseModel**: A data validation library bundled with FastAPI. `ChatRequest` defines that the request body must have a `message` field; malformed JSON gets rejected automatically.
+>
+> **uvicorn**: The server that runs FastAPI. Start with `uvicorn main:app --reload` — `main:app` means the `app` object in `main.py`.
+>
+> **StreamingResponse**: FastAPI's streaming response class. Instead of waiting for the entire result before returning, it writes to the HTTP connection as it goes.
+>
+> **SSE (Server-Sent Events)**: A natively browser-supported server-push protocol. Frame format: `data: {json}\n\n` — each line starts with `data: `, ending with two newlines. `media_type="text/event-stream"` tells the browser to parse it as SSE.
+
+The non-streaming endpoint waits until all steps finish and returns everything at once. The streaming endpoint yields one event per step; the frontend sees "thinking → calling tool → result" in real time.
+
+---
+
+## react_loop.py: The ReAct Loop
+
+ReAct = Reasoning + Acting. Loop structure: think → call tool → feed result back → think again → ... → final answer.
+
+```python title="react_loop.py"
+MAX_ITERS = 5
+
+def run_react_stream(user_message: str):
+    messages = [{"role": "user", "content": user_message}]
+
+    for i in range(MAX_ITERS):
+        result = chat(messages)                    # 1. think
+        yield {"type": "thinking", "content": result["thought"]}
+
+        if "final" in result:                      # 2. final answer → stop
+            yield {"type": "text", "content": result["final"]}
+            return
+
+        tool_name = result["tool"]                 # 3. act: call tool
+        yield {"type": "tool_call", "name": tool_name, "input": result["args"]}
+
+        tool_fn = TOOLS[tool_name]["fn"]
+        tool_output = tool_fn(**result["args"])
+
+        yield {"type": "tool_result", "name": tool_name, "output": tool_output}
+
+        messages.append({"role": "assistant", "content": f"I decided to call {tool_name}"})
+        messages.append({"role": "tool", "content": tool_output})
+```
+
+> **yield / generator**: A normal function `return`s everything at once. A generator function uses `yield` to emit one value at a time, pauses, and resumes on the next call. `for event in run_react_stream(...)` pulls events one by one. This is the underlying mechanism for streaming output.
+>
+> **MAX_ITERS = 5**: Prevents the model from looping tool calls forever. Production value is typically 10.
+
+Four event types: `thinking` (reasoning), `tool_call` (requesting a tool), `tool_result` (tool output), `text` (final answer). The frontend dispatches rendering based on the `type` field.
+
+---
+
+## llm.py: Connecting a Real LLM
+
+Instead of using OpenAI's function calling protocol, I instruct the model via system prompt to return JSON, then parse it myself. This is simpler and more controllable.
+
+```python title="llm.py"
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=API_KEY,
+    base_url="https://api.deepseek.com/v1",  # DeepSeek is OpenAI-compatible
+)
+
+SYSTEM_PROMPT = """You are a data query assistant. You have these tools:
+1. get_context(question: str) — match relevant data domains, tables, and metrics
+2. execute_sql(sql: str) — execute a SELECT SQL query
+
+You must respond strictly in this JSON format (no other text):
+- To call a tool: {"thought": "...", "tool": "tool_name", "args": {...}}
+- To answer directly: {"thought": "...", "final": "..."}
+"""
+
+def chat(messages: list[dict]) -> dict:
+    user_msg = next(m["content"] for m in reversed(messages) if m["role"] == "user")
+
+    if messages[-1]["role"] == "tool":
+        prompt = f"User question: {user_msg}\n\nTool result:\n{messages[-1]['content']}\n\nDecide next step."
+    else:
+        prompt = user_msg
+
+    resp = client.chat.completions.create(
+        model="deepseek-flash",
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0,
+    )
+
+    return json.loads(resp.choices[0].message.content)
+```
+
+> **openai SDK**: OpenAI's official Python library. Despite the name, any OpenAI-compatible service (DeepSeek, Moonshot, self-hosted vLLM) works — just change `base_url`.
+>
+> **base_url**: The API endpoint. OpenAI official is `https://api.openai.com/v1`; DeepSeek is `https://api.deepseek.com/v1`.
+>
+> **temperature=0**: Greedy decoding, deterministic output. Production typically uses 0 or 0.1.
+>
+> **Why not function calling**: OpenAI's `tools` parameter requires defining tools as JSON Schema, and parsing `tool_calls` adds protocol overhead. For a minimal viable version, requiring raw JSON output is simpler and easier to debug.
+
+---
+
+## tools.py: Tool Registry
+
+Tools are just Python functions. The model can only pick from the registry — it cannot call arbitrary functions. This is the security boundary.
+
+```python title="tools.py"
+TOOLS = {
+    "get_context": {
+        "fn": get_context,
+        "description": "Reverse-match relevant domains, tables, and metrics from the user's question",
+    },
+    "execute_sql": {
+        "fn": execute_sql,
+        "description": "Execute a SELECT SQL query against the database",
+    },
+}
+```
+
+`execute_sql` runs through the SQL guardrail first, then executes:
+
+```python
+def execute_sql(sql: str) -> str:
+    try:
+        safe_sql = validate_and_transform(sql)
+    except SqlSecurityError as e:
+        return f"❌ SQL rejected by guardrail: {e}"
+    # Execute safe_sql (currently mocked; will swap to real SQLAlchemy)
+    return ...
+```
+
+---
+
+## semantic_layer.py: The Semantic Layer
+
+This is the most technically substantial part of the project. Three layers of metadata: Domain → Table → Metric.
+
+> **Semantic layer**: A business abstraction on top of the database. When a user says "sales", the system knows this maps to `SUM(paid_amount) WHERE status='paid' AND is_test=0` — the model doesn't have to guess.
+
+```python title="semantic_layer.py"
+from dataclasses import dataclass
+
+@dataclass
+class Metric:
+    key: str
+    name: str
+    sql_expression: str   # SUM(paid_amount)
+    table: str
+    time_field: str       # settle_time
+    filters: str          # status='paid' AND is_test=0
+    aliases: list[str]   # ["revenue", "income"]
+```
+
+> **dataclass**: Python standard library for plain data classes. `@dataclass` auto-generates `__init__`, `__repr__`, and other boilerplate so you don't have to write them by hand.
+
+Reverse-matching algorithm: user question → keywords → which index layer to hit.
+
+```python
+def match_domains(question):
+    # Match keywords against domain descriptions
+    ...
+
+def match_tables(question, domains):
+    # 1. Filter by domain
+    # 2. Match keywords against table descriptions
+    # 3. Gate: is_visible must be True
+    ...
+
+def match_metrics(question, tables):
+    # Match keywords against metric names and aliases
+    ...
+```
+
+`build_context(question)` aggregates all three layers and returns them to the LLM as context.
+
+> **Dual gate**: Tables have an `is_visible` field. Invisible tables are filtered out at the semantic layer — the model never sees them, so it can't generate SQL against them. This is pre-emptive blocking, not post-hoc rejection.
+>
+> **Why no vector retrieval**: This project deliberately uses pure keyword matching without embeddings. The metadata volume is small (dozens of domains, hundreds of tables), so keywords + aliases are precise enough — and fully explainable, since you can trace exactly why a metric was matched.
+
+---
+
+## sql_guard.py: SQL Guardrail
+
+Model-generated SQL must never run raw. sqlglot parses it into an AST for three checks.
+
+```python title="sql_guard.py"
+import sqlglot
+from sqlglot import exp
+
+def validate_and_transform(sql: str) -> str:
+    ast = sqlglot.parse_one(sql)
+
+    # Check 1: SELECT only
+    if not isinstance(ast, exp.Select):
+        raise SqlSecurityError("Only SELECT queries are allowed")
+
+    # Check 2: No INTO (prevents SELECT INTO writes)
+    if ast.find(exp.Into):
+        raise SqlSecurityError("INTO clause is forbidden")
+
+    # Check 3: Auto-add LIMIT
+    if not ast.args.get("limit"):
+        ast = ast.limit(1000)
+
+    return ast.sql()
+```
+
+> **sqlglot**: A Python SQL parsing / generation / dialect-translation library. Roughly equivalent to JSQLParser in the Java ecosystem.
+>
+> **AST (Abstract Syntax Tree)**: The SQL string is parsed into a tree structure where each node is a syntactic element (Select, Where, Limit, etc.). AST checking is more reliable than string matching — the model can evade string heuristics with comments or case variation, but it can't evade the grammar tree.
+>
+> **exp.Select / exp.Into**: sqlglot node types. `isinstance(ast, exp.Select)` checks whether the SQL statement is a SELECT. `ast.find(exp.Into)` searches the tree for an INTO node.
+
+---
+
+## In Action
+
+Asking "What's the sales by region recently?" — the SSE stream pushes step by step:
+
+```text
+data: {"type": "thinking", "content": "Need to fetch relevant tables and metrics first"}
+data: {"type": "tool_call", "name": "get_context", ...}
+data: {"type": "tool_result", "name": "get_context", "output": "...semantic layer metadata..."}
+data: {"type": "thinking", "content": "Sales metric is SUM(paid_amount), time field is settle_time..."}
+data: {"type": "tool_call", "name": "execute_sql", "input": {"sql": "SELECT region, SUM(paid_amount) ... GROUP BY region ..."}}
+data: {"type": "tool_result", "name": "execute_sql", "output": "...guardrail added LIMIT 200..."}
+data: {"type": "text", "content": "Last 30-day sales by region: East China 1,234,567..."}
+```
+
+The model itself interpreted "recent" as the last 30 days and added the time filter. It used the metric definition from the semantic layer. The guardrail auto-appended LIMIT.
+
+---
+
+## Design Tradeoffs
+
+| Layer | Framework / Library | My Design |
+|---|---|---|
+| HTTP | FastAPI + Pydantic | Both non-streaming and streaming endpoints |
+| Agent loop | Hand-written (no framework) | Four event types, MAX_ITERS cap |
+| LLM | openai SDK + DeepSeek | System-prompt JSON protocol, no function calling |
+| Tools | Python dict | Tool registry as security boundary |
+| Semantic layer | No off-the-shelf framework | Three indexes + reverse matching + dual gate + metric definitions |
+| SQL safety | sqlglot | Three checks (SELECT-only, no INTO, auto-LIMIT) |
+| Streaming | FastAPI StreamingResponse | SSE frame wrapping, event type dispatch |
+
+The "no off-the-shelf framework" row on the semantic layer is the core value. Every other layer is library choice plus glue code.

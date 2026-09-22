@@ -39,9 +39,10 @@ export function HeroSlideshow() {
       <div className="hero-shade" />
 
       <header className="hero-header">
-        <span className="edition-link">
+        {/* oxlint-disable-next-line next/no-html-link-for-pages -- native anchors match the site's existing navigation contract. */}
+        <a className="edition-link" href="/chat-with-me">
           Chat With Me <span aria-hidden="true">→</span>
-        </span>
+        </a>
         <nav aria-label="Primary navigation">
           <a href="/photography">Photography</a>
           <a href="/blog">Blog</a>

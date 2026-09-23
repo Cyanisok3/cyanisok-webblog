@@ -50,19 +50,26 @@ jobs:
           release_dir="$deploy_root/releases/$GITHUB_SHA-$GITHUB_RUN_ATTEMPT"
 
           mkdir -p "$release_dir"
-          # Prefer git over https: github.com:443 is reachable from this VPS,
-          # while codeload.github.com (tarball endpoint) is intermittently blocked.
-          if ! git clone --depth 1 --branch main \
-              "https://github.com/Cyanisok3/cyanisok-webblog.git" "$release_dir" 2>/dev/null; then
-            echo "git clone failed, falling back to codeload tarball"
-            archive="$RUNNER_TEMP/cyanisok-webblog-$GITHUB_SHA.tar.gz"
-            curl -fsSL --retry 5 --retry-all-errors \
+          # VPS -> GitHub direct bandwidth is ~100KB/s, so a 31MB tarball
+          # cannot finish within a 300s window (git clone and codeload both
+          # time out). Public proxy mirrors are ~10MB/s and are tried first.
+          archive="$RUNNER_TEMP/cyanisok-webblog-$GITHUB_SHA.tar.gz"
+          fetch() {
+            local base="$1"
+            curl -fsSL --retry 3 --retry-all-errors \
               --connect-timeout 20 --max-time 300 \
               -o "$archive" \
+              "$base/https://github.com/Cyanisok3/cyanisok-webblog/archive/$GITHUB_SHA.tar.gz"
+          }
+          if ! fetch "https://gh-proxy.com" && ! fetch "https://ghfast.top"; then
+            echo "proxy mirrors failed, falling back to codeload direct"
+            curl -fsSL --retry 2 --retry-all-errors -C - \
+              --connect-timeout 20 --max-time 900 \
+              -o "$archive" \
               "https://codeload.github.com/Cyanisok3/cyanisok-webblog/tar.gz/$GITHUB_SHA"
-            tar xzf "$archive" --strip-components=1 -C "$release_dir"
-            rm "$archive"
           fi
+          tar xzf "$archive" --strip-components=1 -C "$release_dir"
+          rm "$archive"
 
           test -f "$release_dir/package-lock.json"
           test -f "$release_dir/.github/workflows/deploy.yml"

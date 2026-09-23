@@ -5,9 +5,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import type { Photograph } from '@/lib/photographs';
-import { LightboxGlyphField } from '@/components/lightbox-glyph-field';
-
-const glyphPhotoIds = new Set(['zibo', 'shanghai', 'hainan', 'unnc']);
+import { PhotographyLightbox } from '@/components/photography-lightbox';
 
 function PhotoCard({ photo, index, onOpen, onEnter, onLeave }: {
   photo: Photograph;
@@ -83,59 +81,12 @@ function PhotoCard({ photo, index, onOpen, onEnter, onLeave }: {
   );
 }
 
-function LightboxImage({ photo }: { photo: Photograph }) {
-  const [colorFailed, setColorFailed] = useState(false);
-  const [monoFailed, setMonoFailed] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [presented, setPresented] = useState(false);
-  const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
-  const imageRef = useRef<HTMLImageElement | null>(null);
-  const size = colorFailed ? photo.monoSize : photo.colorSize;
-  const source = colorFailed ? photo.monoSrc : photo.colorSrc;
-
-  useEffect(() => {
-    if (!ready) return;
-    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 260;
-    const timer = window.setTimeout(() => setPresented(true), delay);
-    return () => window.clearTimeout(timer);
-  }, [ready, source]);
-
-  function failed(image: HTMLImageElement) {
-    if (imageRef.current !== image) return;
-    setReady(false);
-    setPresented(false);
-    setLoadedImage(null);
-    if (colorFailed) setMonoFailed(true); else setColorFailed(true);
-  }
-
-  return (
-    <>
-      {!monoFailed && <img key={source} ref={imageRef} src={source} alt={photo.alt}
-        width={size.width} height={size.height} className={ready ? 'is-ready' : ''}
-        onLoad={async (event) => {
-          const image = event.currentTarget;
-          try {
-            await image.decode();
-            if (imageRef.current !== image) return;
-            setLoadedImage(image);
-            setReady(true);
-          } catch { failed(image); }
-        }} onError={(event) => failed(event.currentTarget)} />}
-      {glyphPhotoIds.has(photo.id) && ready && loadedImage && <LightboxGlyphField image={loadedImage} />}
-      {!presented && <output className={`photography-loading${ready ? ' is-leaving' : ''}`}>{monoFailed ? 'This photograph could not be loaded.' : 'Loading photograph…'}</output>}
-      {colorFailed && !monoFailed && <output className="photography-fallback">Color version unavailable — showing monochrome.</output>}
-    </>
-  );
-}
-
 export function PhotographyGallery({ photos, onActiveIndexChange }: { photos: Photograph[]; onActiveIndexChange?: (index: number) => void }) {
-  const [selected, setSelected] = useState<number | null>(null);
+  const [lightbox, setLightbox] = useState({ open: false, index: 0 });
   const returnFocus = useRef<HTMLButtonElement | null>(null);
-  const closeButton = useRef<HTMLButtonElement | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const [focused, setFocused] = useState<number | null>(null);
   const lastPointer = useRef(0);
-  const photo = selected === null ? null : photos[selected];
 
   // Mouse clicks move the pointer immediately before focus, so a focus
   // that follows a recent pointer move is mouse-induced and must not pin
@@ -147,49 +98,26 @@ export function PhotographyGallery({ photos, onActiveIndexChange }: { photos: Ph
   }, []);
 
   useEffect(() => {
-    if (selected !== null) return;
+    if (lightbox.open) return;
     onActiveIndexChange?.(hovered ?? focused ?? -1);
-  }, [focused, hovered, onActiveIndexChange, selected]);
-
-  function step(direction: number) {
-    setSelected((current) => current === null ? null : Math.min(photos.length - 1, Math.max(0, current + direction)));
-  }
+  }, [focused, hovered, lightbox.open, onActiveIndexChange]);
 
   return (
     <>
       <ol className="photography-grid">
         {photos.map((item, index) => <PhotoCard key={item.id} photo={item} index={index}
-          onOpen={(trigger) => { returnFocus.current = trigger; setSelected(index); }}
+          onOpen={(trigger) => { returnFocus.current = trigger; setLightbox({ open: true, index }); }}
           onEnter={(kind) => {
             if (kind === 'focus' && Date.now() - lastPointer.current < 300) return;
             if (kind === 'focus') setFocused(index); else setHovered(index);
           }}
           onLeave={(kind) => kind === 'focus' ? setFocused(null) : setHovered(null)} />)}
       </ol>
-      <Dialog.Root open={selected !== null} onOpenChange={(open) => { if (!open) setSelected(null); }}>
+      <Dialog.Root open={lightbox.open} onOpenChange={(open) => setLightbox((current) => ({ ...current, open }))}>
         <Dialog.Portal>
           <Dialog.Backdrop className="photography-lightbox-backdrop" />
-          <Dialog.Popup className="photography-lightbox" initialFocus={closeButton} finalFocus={returnFocus}
-            onKeyDown={(event) => {
-              if (event.altKey || event.ctrlKey || event.metaKey) return;
-              if (event.key === 'ArrowRight') { event.preventDefault(); step(1); }
-              if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); }
-            }}>
-            <header className="photography-lightbox-header">
-              <Dialog.Title>{photo?.title ?? 'Photograph'}</Dialog.Title>
-              <Dialog.Close ref={closeButton} className="photography-lightbox-close" aria-label="Close photograph"><span className="photography-lightbox-close-label">Close</span> <span aria-hidden="true">×</span></Dialog.Close>
-            </header>
-            <Dialog.Description className="sr-only">Full color photograph. Use the left and right arrow keys to browse, or Escape to close.</Dialog.Description>
-            <div className="photography-lightbox-stage">
-              <Dialog.Close className="photography-lightbox-dismiss" tabIndex={-1} aria-label="Close photograph background" />
-              {photo && <LightboxImage key={photo.id} photo={photo} />}
-            </div>
-            <footer className="photography-lightbox-controls">
-              <button type="button" onClick={() => step(-1)} disabled={selected === null || selected === 0} aria-label="Previous photograph">← <span>Previous</span></button>
-              <p aria-live="polite" aria-atomic="true">{String((selected ?? 0) + 1).padStart(2, '0')} / {String(photos.length).padStart(2, '0')}<span>{photo?.title}</span></p>
-              <button type="button" onClick={() => step(1)} disabled={selected === null || selected === photos.length - 1} aria-label="Next photograph"><span>Next</span> →</button>
-            </footer>
-          </Dialog.Popup>
+          <PhotographyLightbox photos={photos} initialIndex={lightbox.index}
+            onClose={() => setLightbox((current) => ({ ...current, open: false }))} returnFocus={returnFocus} />
         </Dialog.Portal>
       </Dialog.Root>
     </>

@@ -2,7 +2,7 @@ import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 
-const ids = ['zibo', 'shanghai', 'hainan', 'yantai', 'ningbo', 'unnc', 'aquarium'];
+const ids = ['zibo', 'the_north_bund', 'sanya', 'yantai', 'dongqian_lake', 'unnc', 'the_soa'];
 const ramp = ' .:-=+*#%@';
 const width = 40;
 const entries = [];

@@ -9,7 +9,7 @@ export const profile = {
   role: 'UG-Y4 Student',
   tagline: ['CREATE YOUR ART NOW', 'INSPIRE SOULS OFFER KINDNESS'],
   portrait: '/me.webp',
-  background: '/shanghai.webp',
+  background: '/the_north_bund.webp',
   researchDirections: [] as string[],
   biography: [
     'Do you know?',

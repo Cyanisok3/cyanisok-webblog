@@ -8,7 +8,7 @@ import type { Photograph } from '@/lib/photographs';
 import { photographyDiaries } from '@/lib/photography-diaries';
 import { LightboxGlyphField } from '@/components/lightbox-glyph-field';
 
-const glyphPhotoIds = new Set(['zibo', 'shanghai', 'hainan', 'unnc']);
+const glyphPhotoIds = new Set(['zibo', 'the_north_bund', 'sanya', 'unnc']);
 let closeHintSeen = false;
 
 function LightboxImage({ photo, active, closeHint }: { photo: Photograph; active: boolean; closeHint: boolean }) {

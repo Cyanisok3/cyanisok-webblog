@@ -26,48 +26,8 @@ export default function Home() {
         </a>
       </section>
 
-      <section className="photography-section" id="photography" aria-labelledby="photography-title">
-        <header className="section-heading photography-heading">
-          <div>
-            <p className="section-kicker">02 · Photography</p>
-            <h2 id="photography-title">Photo Notes</h2>
-          </div>
-          <p className="section-note">A growing archive of photographs, places, and passing light.</p>
-        </header>
-
-        <div className="photo-grid">
-          <figure className="photo-card photo-card-tall">
-            <img src="/archive/polaroid.webp" alt="A personal photograph with a teddy bear" />
-            <figcaption>
-              <span>Private archive</span>
-              <span>01 / 03</span>
-            </figcaption>
-          </figure>
-          <figure className="photo-card">
-            <img
-              src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1500&q=88"
-              alt="A traveller in the mountains"
-            />
-            <figcaption>
-              <span>On the road</span>
-              <span>02 / 03</span>
-            </figcaption>
-          </figure>
-          <figure className="photo-card">
-            <img
-              src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1500&q=88"
-              alt="A lake framed by distant mountains"
-            />
-            <figcaption>
-              <span>Between mountains</span>
-              <span>03 / 03</span>
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
       <section className="about-section" id="about" aria-labelledby="about-title">
-        <p className="section-kicker">03 · About</p>
+        <p className="section-kicker">02 · About</p>
         <div className="about-grid">
           <h2 id="about-title">Taste matters<br />not only in art<br /> but also in technology.</h2>
           <div className="about-copy">

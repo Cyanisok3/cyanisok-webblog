@@ -11,7 +11,7 @@
   z-index: 0;
   background: url('/archive/background_dark.webp') center / cover no-repeat;
   content: '';
-  opacity: 0.06;
+  opacity: 0.1;
   pointer-events: none;
 }
 .photography-page::before { position: absolute; z-index: 0; top: 148px; bottom: 96px; left: 10px; width: 13px; content: ''; pointer-events: none; background-image: repeating-linear-gradient(to bottom, rgb(248 246 239 / 34%) 0 1px, transparent 1px 60px), repeating-linear-gradient(to bottom, rgb(248 246 239 / 20%) 0 1px, transparent 1px 12px); background-position: left top; background-size: 13px 60px, 5px 12px; background-repeat: repeat-y; }

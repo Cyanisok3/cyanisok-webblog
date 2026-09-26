@@ -371,8 +371,19 @@ img {
 }
 
 .about-section {
+  position: relative;
   padding-top: clamp(100px, 12vw, 170px);
   padding-bottom: clamp(110px, 14vw, 190px);
+}
+
+.writing-section + .about-section::before {
+  position: absolute;
+  top: 0;
+  right: 4vw;
+  left: 4vw;
+  border-top: 1px solid var(--ink-soft);
+  content: '';
+  pointer-events: none;
 }
 
 .about-grid {
@@ -1287,6 +1298,11 @@ img {
   .about-section {
     padding-right: 22px;
     padding-left: 22px;
+  }
+
+  .writing-section + .about-section::before {
+    right: 22px;
+    left: 22px;
   }
 
   .section-heading {

@@ -103,8 +103,6 @@ img {
   --hero-edge: clamp(24px, 3vw, 42px);
   --hero-top-edge: clamp(28.8px, 3.6vw, 50.4px);
   --hero-side-edge: clamp(36px, 4.5vw, 63px);
-  --hero-chat-top: clamp(25.92px, 3.24vw, 45.36px);
-  --hero-chat-side: clamp(32.4px, 4.05vw, 56.7px);
   position: relative;
   min-height: 680px;
   height: 100svh;
@@ -159,18 +157,10 @@ img {
   display: flex;
   width: 100%;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: var(--hero-top-edge) var(--hero-side-edge);
 }
 
-.edition-link {
-  position: relative;
-  top: calc(var(--hero-chat-top) - var(--hero-top-edge));
-  left: calc(var(--hero-chat-side) - var(--hero-side-edge));
-  white-space: nowrap;
-}
-
-.edition-link,
 .hero-header nav a {
   position: relative;
   font-size: clamp(1.18rem, 2.36vw, 1.69rem);
@@ -576,8 +566,15 @@ img {
   padding: 0 0 128px;
 }
 
-.blog-page .site-footer {
+.blog-page .site-footer,
+.about-page .site-footer,
+.photography-page .site-footer {
   margin-inline: 0;
+}
+
+.about-page .site-footer,
+.photography-page .site-footer {
+  border-color: #f8f6ef28;
 }
 
 .blog-year {
@@ -1268,8 +1265,6 @@ img {
     --hero-edge: 22px;
     --hero-top-edge: 26.4px;
     --hero-side-edge: 33px;
-    --hero-chat-top: 23.76px;
-    --hero-chat-side: 29.7px;
     min-height: 640px;
   }
 
@@ -1277,7 +1272,6 @@ img {
     gap: 21px;
   }
 
-  .edition-link,
   .hero-header nav a {
     font-size: 0.9rem;
   }

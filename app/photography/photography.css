@@ -75,8 +75,6 @@
 .photography-open { opacity: 0; transition: opacity 180ms; }
 .photography-card:focus-visible .photography-open { opacity: 1; }
 .photography-image-error { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font: 12px/1.8 var(--mono); color: #b8b6ad; }
-.photography-footer { margin-top: 72px; padding-top: 26px; border-top: 1px solid #383833; display: flex; justify-content: space-between; gap: 20px; color: #aaa9a2; font: 10px/1.5 var(--mono); text-transform: uppercase; }
-.photography-footer a:hover { color: #f8f6ef; }
 
 .photography-lightbox-backdrop { position: fixed; inset: 0; background: #0d0d0c; z-index: 100; }
 .photography-lightbox { position: fixed; inset: 0; z-index: 101; display: grid; grid-template-columns: 38.2% minmax(0, 1fr); background: #0d0d0c; color: #f8f6ef; outline: none; }
@@ -149,8 +147,6 @@
   .photography-index { display: none; }
   .photography-grid { grid-template-columns: minmax(0, 1fr); row-gap: 38px; }
   .photography-caption { font-size: 11px; }
-  .photography-footer { flex-wrap: wrap; margin-top: 56px; gap: 18px; }
-  .photography-footer > span:nth-child(2) { display: none; }
   .photography-lightbox { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(260px, 44dvh) minmax(0, 1fr); }
   .photography-lightbox-editorial { padding: 18px 22px 14px; }
   .photography-lightbox-heading p { margin-bottom: 4px; font-size: 10px; }

@@ -33,7 +33,6 @@
 .about-profile-biography { max-width: 670px; font: 18px/1.75 var(--serif); color: #c9c7bf; }
 .about-profile-biography p { margin: 0 0 16px; }
 .about-profile :is(p, dt, dd) { user-select: text; }
-.about-page-footer { display: flex; justify-content: space-between; border-top: 1px solid #f8f6ef28; padding-top: 24px; font: 10px/1.6 var(--mono); color: #aaa99f; }
 .about-page a:focus-visible { outline: 1px solid currentColor; outline-offset: 6px; }
 @media (max-width: 1100px) {
   .about-profile { grid-template-columns: 220px minmax(0, 1fr); gap: 32px; }
@@ -48,7 +47,6 @@
   .about-profile h2 { max-width: none; }
   .about-profile-facts > div { grid-template-columns: 95px minmax(0, 1fr); gap: 16px; font-size: 13px; }
   .about-profile-facts dt { font-size: 10px; }
-  .about-page-footer { gap: 16px; font-size: 9px; }
 }
 @keyframes about-card-loading-sweep { to { transform: translateX(115%); } }
 @media (prefers-reduced-motion: reduce) {

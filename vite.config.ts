@@ -65,15 +65,7 @@ export default defineConfig(async () => {
     optimizeDeps: {
       exclude: ['motion', 'motion/react', 'framer-motion'],
     },
-    server: {
-      ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
-      proxy: {
-        '/api': {
-          target: process.env.CHAT_API_URL ?? 'http://127.0.0.1:8001',
-          changeOrigin: false,
-        },
-      },
-    },
+    server: isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {},
     plugins: [
       {
         ...mdxPlugin,

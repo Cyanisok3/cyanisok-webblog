@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { InnerNavigation } from '@/components/inner-navigation';
 import { PhotographyArchive } from '@/components/photography-archive';
+import { SiteFooter } from '@/components/site-footer';
 import { photographs } from '@/lib/photographs';
 import './photography.css';
 
@@ -25,11 +26,7 @@ export default function PhotographyPage() {
           <p>Selected frames / 01—{total}</p>
         </header>
         <PhotographyArchive photos={photographs} />
-        <footer className="photography-footer">
-          <span>© {new Date().getFullYear()} Cyan Liu</span>
-          <span>A personal photo archive</span>
-          <a href="#photo-top">Back to top ↑</a>
-        </footer>
+        <SiteFooter />
       </div>
     </main>
   );

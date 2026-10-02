@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { InnerNavigation } from '@/components/inner-navigation';
 import { AboutCard } from '@/components/about-card';
+import { SiteFooter } from '@/components/site-footer';
 import { profile } from '@/lib/profile';
 import './about.css';
 
@@ -35,7 +36,7 @@ export default function AboutPage() {
           <div className="about-profile-biography">{profile.biography.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
         </div>
       </section>
-      <footer className="about-page-footer"><span>© {new Date().getFullYear()} {profile.name}</span><a href="#about-top">Back to top ↑</a></footer>
+      <SiteFooter />
     </div>
   </main>;
 }

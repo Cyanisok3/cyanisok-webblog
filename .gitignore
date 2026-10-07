@@ -39,5 +39,7 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+Qwen3_SFT/
 
+# api keys
 api_key0919.txt

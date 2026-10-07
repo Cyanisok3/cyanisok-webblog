@@ -1,7 +1,7 @@
 // Only the Zibo entry has author-written copy so far. Add further entries by photo ID.
 export const photographyDiaries: Partial<Record<string, string>> = {
-  zibo: `
-On May 31, my little brother and I came out through the gatehouse, went down the stone steps, and turned east, running toward the wheat fields.
+  zibo: 
+`On May 31, my little brother and I came out through the gatehouse, went down the stone steps, and turned east, running toward the wheat fields.
 
 The stone path along the edge of the fields was even harder on the feet than the dirt road. I followed behind him and watched as he bent down to pick up a stone. The overcast day carried the dampness of something only half awake. The heads of wheat swayed in the faint breeze without catching a trace of light, yet whenever my attention drifted, their awns pricked painfully at my ankles.
 I looked up. My brother's small, dark face was turned toward me against the light, grinning with all his teeth. He swung his arm, and the stone rose first as high as the clouds, then fell straight down into that restless yellow, disappearing into the sound of the wind.
@@ -16,8 +16,8 @@ I stood up. As I passed through the courtyard, I saw the door with the lock stil
 
 For a moment, I felt certain that if I did, I would find you.. sitting somewhere, waiting for me—when I was most helpless, that was what you were supposed to do.`,
 
-the_north_bund: `
-Ten years later, he looked twenty years older.
+  the_north_bund: 
+`Ten years later, he looked twenty years older.
 
 He was still an office worker, now settled on the outskirts of Shanghai. He and Sui-jie had a son, a year older than my little brother. He still carried himself with the same spirited air. Those thick brows and bright eyes, that high bridge of his nose—it seemed they had always held up something of his unruly nature.
 
@@ -27,5 +27,8 @@ We had dinner near Binhai Middle Road. Along the streets stood old villas and la
 
 He had not changed at all.
 
-What sounded like earnest lecturing from him was, in his own mind, nothing more than a few well-meant reminders—he was, after all, an extraordinarily simple-hearted man.`
+What sounded like earnest lecturing from him was, in his own mind, nothing more than a few well-meant reminders—he was, after all, an extraordinarily simple-hearted man.`,
+
+  sanya: 
+``,
 };

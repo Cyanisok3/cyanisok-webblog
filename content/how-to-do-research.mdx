@@ -1,0 +1,159 @@
+---
+title: "How to Do Research"
+publishedAt: "2026-10-15"
+author: "Cyan Liu"
+category: "Research"
+tags: ["Research"]
+summary: "Topic –> Problem –> Idea –> Concrete Work (theoretical analysis, experiments, ect.)"
+---
+
+> **Topic** –> **Problem** –> **Idea** –> **Concrete Work (theoretical analysis, experiments, ect.)**
+
+For the Concrete Work to verify your Idea:
+
+- Strength / Weakness
+- How / When / Why strong?
+- How / When / Why weak?
+
+## How to Search for Reference Papers?
+
+- **Top Conference Papers**<br />
+  ML: ICML, NeurlPS, ICLR<br />
+  NLP: ACL, EMNLP, COLM<br />
+  CV: CVPR, ICCV, ECCV<br />
+  AI: AAAI, IJCAI<br />
+  Data Mining & Info Retrieval: KDD<br />
+  Multidisciplinary: TPAMI, JMLR, TMLR, TKDE, Nature Machine Intelligence, CHI, etc.
+- **Seed Papers**<br />
+  High quality surveys published recently<br />
+  Widely acknowledged representative works<br />
+  Papers that are highly related to your RQ<br />
+  Widely used Benchmark papers<br />
+  Top conference && Representative papers
+- **Paper citation network**<br />
+  forward<br />
+  backward
+- **Following some top authors / research groups**<br />
+  Personal websites<br />
+  Google Scholar, DBLP, Semantic Scholar pages<br />
+  Lab homepage of some research groups<br />
+  Github page, project page, Hugging Face page<br />
+  <u>Social media platforms</u> (WeChat, RedNote, etc.)
+- **Find their code, dataset or benchmark first**<br />
+  Official websites<br />
+  Leaderboard<br />
+  Hugging Face<br />
+  Github<br />
+  Compared methods cited in their papers
+
+> Using Zotero + Codex to manage your papers
+
+## How to Read Papers?
+
+1. **Go through Abstract, pictures and charts**<br />
+   Who?<br />
+   Where does it published?<br />
+   What’s the problem?<br />
+   What’s the effect / achievement?
+2. **What’s the RQ?**<br />
+   Find it in the Abstract or Introduction (However, our method / we propose…)
+3. **Why do they need to solve it?**<br />
+   Precedent research/papers?<br />
+   Meaningful?<br />
+   Who else done it?<br />
+   Any other solutions?<br />
+   Any challenges/limitations in the remained solutions?<br />
+   How would I deal with it?
+4. **Read its Methodology**<br />
+   Critical thinking<br />
+   Limitations?<br />
+   Can I do better?
+5. **Analyze & Reproduce the experiment**<br />
+   Which <u>dataset</u> it used?<br />
+   What are the <u>compared methods</u>?<br />
+   <u>Why</u> them?<br />
+   Is the <u>experiment design</u> reasonable?<br />
+   Is the <u>conclusion</u> reasonable?<br />
+   Any <u>flaws</u>?<br />
+   Available <u>open-source code</u>?
+6. **Find its related works**
+7. Reflections<br />
+   Critical thinking & Creative thinking
+
+## How to come up with a Plausible Idea?
+
+### Problem-driven research
+
+e.g.:
+
+<div style={{ paddingLeft: '2em' }}>
+  How to **improve** the model’s performance?<br />
+  Define a new **benchmark**?<br />
+  **Analyze** the existed methods based on existed benchmark?
+</div>
+
+### Method-driven research
+
+Using **existed method** to solve a <u>new problem</u> / apply (adapt) it to a <u>new field</u>
+
+> We can also combine the two paradigms above
+
+### How to find RQs, though?
+
+- **Being overly nitpicky**<br />
+  Raise up questions at the time you reading a paper
+- **Find your chance in its failure cases**<br />
+  <u>Find</u> and <u>reproduce</u> them, then <u>analyze</u> why and try to <u>resolve</u> it
+- **Reverse Engineering:** Infer its mechanizm from its performance<br />
+  If it’s effective but lack of explanation, ask ‘how does it actually work?’<br />
+  Then you may need to design experiments to analyze it based on coding
+- **Similar experiment, opposite results**<br />
+  Why the results of experiement A and B are different? ‘Cause of data? Assumptions?<br />
+  Benchmark?
+- **Find research problems in your internships**
+
+### How to evaluate if an idea is worth doing?
+
+Talk with your supervisors / seniors
+
+### How to resolve a research problem?
+
+- **Migrate** these mature/validated existed methods<br />
+  read a bunch of papers, seek techniques with identical problem core
+- Can we **integrate** method A into B?
+- **Create** a new method, **refactor** the problem
+- **AI-assisted** inspirations
+
+## How to Conduct Meeting with Supervisor Effectively?
+
+- **Expose** encountered problems
+- **Clarify** & **Organize** your thoughts
+- Get **feedback**s
+- Carry on~
+
+### Step by Step:
+
+<ol type="a" style={{ listStyleType: 'lower-alpha' }}>
+  <li>
+    <strong>Weekly Report</strong>:<br />
+    <div style={{ paddingLeft: '2em' }}>
+      <u>Review</u> the big picture and existed contribution & <u>Reflect</u> on yourself (still on the track?)<br />
+      <u>Recall</u> your conclusion & To-do list last week<br />
+      <u>Summarize</u> your progress (in 3 sentences)
+    </div>
+  </li>
+  <li><strong>Any Questions</strong> & <strong>Observations?</strong></li>
+  <li><strong>Share some papers read recently</strong> & <strong>Summarize them in 1 sentence, respectively</strong></li>
+  <li><strong>Subsequent to-do list, project timeline, meeting arrangement</strong></li>
+</ol>
+
+## Bonus Tracks
+
+1. Keep your knowledge input steady
+2. Build your knowledge repo
+3. Record essential logs when experimenting
+4. Record obstacles & measures you tried
+5. Organize your thoughts in time
+6. Acting ASAP to verify your idea
+7. Exchange ideas with others (talk talk talk)
+8. Keep self-motivated

@@ -3,6 +3,8 @@ import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/postcss';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import { rehypeHeadingIds } from './lib/toc';
 import { remarkCodeMeta } from './lib/remark-code-meta';
@@ -54,9 +56,10 @@ export default defineConfig(async () => {
       remarkFrontmatter,
       [remarkMdxFrontmatter, { name: 'frontmatter' }],
       remarkGfm,
+      remarkMath,
       remarkCodeMeta,
     ],
-    rehypePlugins: [rehypeHeadingIds],
+    rehypePlugins: [rehypeKatex, rehypeHeadingIds],
   });
   const transformMdx = mdxPlugin.transform as NonNullable<typeof mdxPlugin.transform>;
 

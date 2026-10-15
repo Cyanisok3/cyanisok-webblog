@@ -1,0 +1,238 @@
+---
+title: "[Paper Reading Notes] Reinforcement Learning Application for Real-Life COP Scenario"
+publishedAt: "2026-10-15"
+author: "Cyan Liu"
+category: "Reinforcement Learning"
+tags: ["Reinforcement Learning"]
+summary: "Paper reading notes on applying deep reinforcement learning to real-life combinatorial optimization, using container-port truck dispatching as a case study: problem formulation, Real2Sim simulation, imitation learning, PPO, and generalization experiments."
+---
+
+## Intro
+
+Quay Crane (QC) / Yard Crane (YC) assignment & scheduling issues
+
+They are typically Combinatorial Optimization Problems (COPs) and most are NP-hard
+
+Mathematical model-driven approaches (formulate) → optimization algorithms (solve the model)
+
+To solve COPs, there are:
+
+1. Exact algorithms (prune the solution space, ensuring optimality -: exponential time complexity)
+2. Approximation algorithms (need to adapt the problem – NFL theorem, -: )
+
+**callback:** traditional model-driven approaches are vulnerable to the uncertain factors in the non-derterministic env. → substantial losses to generate the solutions
+
+**Reinforcement Learning (RL) algorithms may work**
+
+Integration of deep learning and RL (DRL)
+
+RL ≈ an approximation of Dynamic Programming (DP) → divide-and-conquer for COPs → decompose in a recursive way & solve each part & combine these results systematically to obtain an overall solution
+
+DP therefore suitable for the problems with overlapping/recursive function calls & depending on current&past states (no future)
+
+In RL, use Markov Decision Process (MDP) to resolve the problems (for sequential decision making)
+
+MDP: only current states, no past states
+
+DP applicable problems → applicable using MDP
+
+Hence RL can help finding solutions for COPs （partly solvable by DP, can be formulation references）
+
+Objectives in COPs are deterministic → simple reward mechanisms
+
+DRL is proved promising to solve COPs
+
+**How to train RL agent in the real-world env.? (time to train & migratability in real world)**
+
+Use Real2Sim transferring (building high-fidelity simulators from real-world data)
+
+**Problem:** Truck dispatching optimization (spec ver. of Pickup and Delivery Problem, PDP)
+
+**Approach:** DRL + AnyLogic simulation
+
+**Contributions:**
+
+1. a flexible truck dispatching system (with IoT capabilities to capture real-time data)
+2. a tailor-made neural network structure (with RL agent to use state vectors)
+3. simulation visualization
+
+The proposed DRL-based simulation optimization: Explainable AI
+
+## Literature Review
+
+Trucks: essential schedulable resources
+
+**How to design truck dispatching rules?** – rely on human experience (heuristic approach)
+
+1. dedicated dispatching policy
+2. intuitive dispatching heuristics (based on dynamic factors)
+3. manually handcrafted dispatching rule (basd on supply-and-demand mechanism of QC)
+
+All dispatching decisions are pre-scheduled without concerning the real-time feedback
+
+- mixed integer programming
+- GA & PSO
+- look-ahead optimization
+- hybrid approaches (with meta-heuristics)
+
+Most of them overlooked the possible dynamic factors and uncertainties, they improve the solution quality at expense of reduced quality
+
+GP: +can reveal some hidden factors; -but has a low sample efficiency & needs fine tuning
+
+**New ideas:**
+
+- RL + sequence-to-sequence learning + pointer network
+- GNN
+- Iterative solution perturbation
+
+Using DRL to solve PDP (variant of Vehicle Routing Problem) has precedent investigation
+
+by using:
+
+- attention mechanism
+- hierarchical RL
+- multi-agent RL
+
+Problems with Online & Dynamic nature can be benefitted by RL-based approaches
+
+Hence truck dispatching problem is suitable, too.
+
+But applications of using RL-based methods to solve these real-life COPs need to consider:
+
+1. interconnected sub-problems, they affect with each other
+2. and.. uncertainties factors in most of them
+
+The performance of HH frameworks rely on:
+
+1. the quality of low-level heuristic design
+2. reduced action space using these heuristics
+
+**Automatic guided vehicles (AGV) recently deployed in container ports**
+
+1. The Multi-Agent Deep Deterministic Policy Gradient (MADDPG) is used for path planning problem
+2. Deep-Q-Network (DQN) is adopted for multi-AGV dynamic scheduling problem
+
+## Problem Description and Formulation
+
+- Berth & QC
+- Trucks
+- Storage Yard & YC
+
+QC & YC: one task each time
+
+QC: load OCs (LOAD) & Unload OCs (DISPATCH)
+
+Yards are divided into yard blocks are divided into bays
+
+1 YC : 1 yard block
+
+1 QC : x tasks;
+
+1 task : 1 truck
+
+pre-defined order
+
+**A task instruction:**
+
+| Id | Source | Destination | Type | Source Bay | Destination Bay |
+| --- | --- | --- | --- | --- | --- |
+| 1 | QC6 | 32 | DISCHARGE | 15 | 12 |
+| 2 | 5 | QC2 | LOAD | 20 | 23 |
+
+1. Move to source Bay xx of Yard Block xx
+2. Pick up container after waiting for [1] the queuing & [2] the crane service time
+3. Move to destination Bay xx of Yard Block xx
+4. Unload the container after waiting for [1] & [2]
+5. Request a new task when completing
+
+Task for the QC needs to be removed from the list when finished
+
+And the scheduler needs to select a new task for a truck based on all states of QCs, YCs and trucks
+
+**Objective:** To minimize the the summation of all QC’s idle time in its QC makespan
+
+### Problem Formulation: Mathematical Notations
+
+- QCs nodes: $Q$
+- YCs nodes: $Y$
+- depot node (the starting point of trucks): $0$
+- a directed graph: $G(N, A)$, where $N = \{0\} \cup Q \cup Y$, $A$ is the edges (road network) connecting nodes
+- trucks: $V$, each truck: $v$
+
+Assume truck movement over G follows the shortest path rule
+
+- a task list for each quay crane q: $L^q$ (each task is of 2 types: loading & unloading)
+- the set of all tasks: $W = \bigcup_{q \in Q} L_q$, each task: $w_i^q$
+- the assignment var: $x(w_i^q, v)$: == 1, if task $w_i^q$ is assigned to $v$
+- the timetamp $T_i^q$, denotingthe time that the i-th task of QC q is served by q
+- the operation time $Q_i^q$ ($> 0$)
+- $z(k, l)$: binary var, indicating whether task l is serviced immediately after task k by any truck
+- $D(w_i^q, v)$: the time duration that the truck v takes to reach the target QC for task $w_i^q$
+
+$\alpha(q) = 1$, if q is for loading task; $=0$, if q is for unloading task
+
+- $T^{w_i^q, y}_{\mathrm{comp}}$ & $T^{w_i^q, y}_{\mathrm{arr}}$: completion & arrival time at target yard y for task $w_i^q$
+- $H(w_i^q, v)$: the queuing time at the QC ($\ge 0$)
+
+With the variables defined above, you need:
+
+1. The objective function: in this case, we need to minimize the summation of all OC’s idle time considering: 1) truck’s traveling time; 2) truck’s queuing time; 3) the service time of QCs & YCs; 4) also considering the idle time at the start of the operations
+2. To further expand the critical variables in your objective function (and maybe you need to define more variables to achieve it, to clarify the scope)
+3. The constraints to ensure some prerequisites: in this case, to ensure the completion of all tasks, the mapping relationships (e.g. 1 task : 1 truck), the order of tasks, first-come-first-serve (FCFS) rule, etc….
+
+## The Proposed DRL Approach
+
+**How to apply the RL framework to the truck dispatching scenario?**
+
+We need to model in the framework of MDP, to define:
+
+- **Environment** (using Real2Sim simulation to help model the real-life env.)
+
+  The purpose of Real2Sim simulation (based on AnyLogic):
+
+  1. Validate the mathematical model, help verify that the model can work; but not represent the model is close to the real-life environment
+  2. Predict the consequences of the action policies to gain complete training data (trajectories); [interative training procedure]
+  3. Can be used as the core of automatic testbed, to iterate neural network, features (math model), training measures and heuristics to choose (for imitation learning); but still need isolated test cases that resemble real-life conditions
+
+- **State**
+- **Actions**
+- **Reward**
+- **State Transition**
+
+### Policy Network Topology & Imitation Learning
+
+- The set of the state vector of each QC can be dynamic, given that the task lists for QCs varies dynamically
+- The expert network (parameters) is freezed (pre-trained) when conducting the formal RL training
+
+### PPO for truck dispatching optimization
+
+- PPO compares old and new action probabilities, and use clipping mechanizm to weaken the incentive for further updates when the change becomes substantial
+
+## Experiment Design for Benchmarking
+
+### Generalization - unseen problem instances
+
+The testing instance design follows the principle of control variables
+
+Change one of the following:
+
+- num of trucks
+- num of tasks
+- num of QCs
+- stacking mode (mixed & seperated loading/unloading containers)
+- yard distribution (centralized & distributed: loading/unloading containers in 1 or 2 yards / in > 2 yards)
+
+**Observation:** the performance of the proposed DRL method ~ the truck-QC ratio
+
+Use base configuration (60 trucks, 400 tasks, 16 QCs, mixed, distributed) to train the dispatching policy and test it with a set of unseen configurations
+
+### Generalization - unknown uncertainties
+
+**Uncertain Factors:** Truck speed at different areas & crane operation time
+
+The truck speed is assumed to be constant in the training, so in the testing env. this is an unknown uncertainty
+
+### Ablation Studies
+
+- Proposed DRL method with/without Imitation Learning
+- Proposed DRL method vs. Offline solution

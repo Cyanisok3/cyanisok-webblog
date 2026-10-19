@@ -1,8 +1,9 @@
 import type { TocItem } from '@/lib/toc';
+import { ArticleReveal } from '@/components/article-reveal';
 
 export function ArticleContents({ items }: { items: TocItem[] }) {
   return (
-    <nav className="article-contents" aria-label="Article contents">
+    <ArticleReveal as="nav" className="article-contents" label="Article contents">
       <p>Contents</p>
       <ol>
         {items.map((item) => (
@@ -11,6 +12,6 @@ export function ArticleContents({ items }: { items: TocItem[] }) {
           </li>
         ))}
       </ol>
-    </nav>
+    </ArticleReveal>
   );
 }

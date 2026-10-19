@@ -2,7 +2,8 @@
 
 /* oxlint-disable nextjs/no-img-element -- These are the original local WebP photographs. */
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/react';
 import { Dialog } from '@base-ui/react/dialog';
 import type { Photograph } from '@/lib/photographs';
 import { photographyDiaries } from '@/lib/photography-diaries';
@@ -60,10 +61,16 @@ function LightboxImage({ photo, active, closeHint }: { photo: Photograph; active
   );
 }
 
-function PhotoDiary({ photo, index, total, onSelect, onStep, initialFocus, scrollPositions, onPositionChange }: {
+const DiaryParagraph = forwardRef<HTMLParagraphElement, { entry: string; duration: number }>(function DiaryParagraph({ entry, duration }, ref) {
+  const present = useIsPresent();
+  return <motion.p ref={ref} aria-hidden={!present} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }} transition={{ duration, ease: 'linear' }}>{entry}</motion.p>;
+});
+
+function PhotoDiary({ photo, index, photos, onSelect, onStep, initialFocus, scrollPositions, onPositionChange }: {
   photo: Photograph;
   index: number;
-  total: number;
+  photos: Photograph[];
   onSelect: (index: number) => void;
   onStep: (direction: number) => void;
   initialFocus: React.RefObject<HTMLButtonElement | null>;
@@ -72,6 +79,8 @@ function PhotoDiary({ photo, index, total, onSelect, onStep, initialFocus, scrol
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const [hasMore, setHasMore] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const duration = reduceMotion ? 0 : 0.25;
   const entry = photographyDiaries[photo.id];
 
   const checkOverflow = useCallback(() => {
@@ -86,14 +95,23 @@ function PhotoDiary({ photo, index, total, onSelect, onStep, initialFocus, scrol
     const frame = window.requestAnimationFrame(checkOverflow);
     const observer = new ResizeObserver(checkOverflow);
     observer.observe(body);
-    return () => { window.cancelAnimationFrame(frame); observer.disconnect(); };
+    const contentObserver = new MutationObserver(checkOverflow);
+    contentObserver.observe(body, { childList: true, subtree: true });
+    return () => { window.cancelAnimationFrame(frame); observer.disconnect(); contentObserver.disconnect(); };
   }, [photo.id, checkOverflow, scrollPositions]);
 
   return (
     <aside className="photography-lightbox-editorial">
       <div className="photography-lightbox-heading">
         <p>PHOTOGRAPHY | DIARY</p>
-        <Dialog.Title>{photo.title}</Dialog.Title>
+        <Dialog.Title className="sr-only">{photo.title}</Dialog.Title>
+        <div className="photography-diary-title" aria-hidden="true">
+          {photos.map((item) => <h2 key={item.id} className="photography-diary-title-size">{item.title}</h2>)}
+          <AnimatePresence initial={false}>
+            <motion.h2 key={photo.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration, ease: 'linear' }}>{photo.title}</motion.h2>
+          </AnimatePresence>
+        </div>
       </div>
       <div ref={bodyRef} className={`photography-diary${hasMore ? ' has-more' : ''}`}
         onScroll={() => {
@@ -101,10 +119,14 @@ function PhotoDiary({ photo, index, total, onSelect, onStep, initialFocus, scrol
           checkOverflow();
         }} tabIndex={entry ? 0 : -1} role={entry ? 'region' : undefined}
         aria-label={entry ? `${photo.title} diary, scroll to read` : undefined}>
-        {entry && <p>{entry}</p>}
+        <div className="photography-diary-text">
+          <AnimatePresence initial={false}>
+            {entry && <DiaryParagraph key={photo.id} entry={entry} duration={duration} />}
+          </AnimatePresence>
+        </div>
       </div>
       <nav className="photography-lightbox-index" aria-label="Photograph index">
-        {Array.from({ length: total }, (_, position) => (
+        {Array.from({ length: photos.length }, (_, position) => (
           <button key={position} ref={position === index ? initialFocus : undefined}
             type="button" data-current={position === index}
             aria-current={position === index ? 'true' : undefined}
@@ -242,7 +264,7 @@ export function PhotographyLightbox({ photos, initialIndex, onClose, returnFocus
         Scroll the photographs to browse. The current photograph closes the lightbox when clicked; neighboring photographs switch to them. Press Escape to close.
       </Dialog.Description>
       <div className="photography-lightbox-editorial-wrap">
-        <PhotoDiary photo={photos[active]} index={active} total={photos.length}
+        <PhotoDiary photo={photos[active]} index={active} photos={photos}
           onSelect={goTo} onStep={step} initialFocus={indexFocus} scrollPositions={diaryPositions}
           onPositionChange={(id, scrollTop) => { diaryPositions.current[id] = scrollTop; }} />
       </div>

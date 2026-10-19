@@ -812,6 +812,20 @@ img {
   color: var(--ink);
 }
 
+.article-reveal-pending {
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-reveal-pending {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
 .prose {
   grid-column: 2;
   min-width: 0;

@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import type { Metadata } from 'next';
 import { ArticleContents } from '@/components/article-contents';
+import { ArticleReveal } from '@/components/article-reveal';
 import { CodeBlock } from '@/components/code-block';
 import { MobileArticleNav } from '@/components/mobile-article-nav';
 import { InnerNavigation } from '@/components/inner-navigation';
@@ -151,9 +152,9 @@ export default async function BlogArticle({ params }: PageProps) {
             <a href="/blog">Back to Blog</a>
             <span>{post.author}</span>
           </aside>
-          <div className="prose">
+          <ArticleReveal key={post.slug} className="prose">
             <post.Content components={mdxComponents} />
-          </div>
+          </ArticleReveal>
           {hasContents ? <ArticleContents items={post.toc} /> : null}
         </div>
       </article>

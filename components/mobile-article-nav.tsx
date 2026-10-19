@@ -10,6 +10,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import type { TocItem } from '@/lib/toc';
+import { ArticleReveal } from '@/components/article-reveal';
 
 export function MobileArticleNav({ items }: { items: TocItem[] }) {
   return (
@@ -27,7 +28,7 @@ export function MobileArticleNav({ items }: { items: TocItem[] }) {
               <X aria-hidden="true" strokeWidth={1.5} />
             </DrawerClose>
           </DrawerHeader>
-          <nav aria-label="Mobile article contents">
+          <ArticleReveal as="nav" label="Mobile article contents">
             {items.map((item) => (
               <DrawerClose
                 key={item.id}
@@ -36,7 +37,7 @@ export function MobileArticleNav({ items }: { items: TocItem[] }) {
                 {item.text}
               </DrawerClose>
             ))}
-          </nav>
+          </ArticleReveal>
         </DrawerContent>
       </Drawer>
       <a href="#article-top" aria-label="Back to top"><ArrowUp aria-hidden="true" strokeWidth={1.5} /></a>

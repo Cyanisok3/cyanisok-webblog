@@ -61,10 +61,16 @@ function LightboxImage({ photo, active, closeHint }: { photo: Photograph; active
   );
 }
 
-const DiaryParagraph = forwardRef<HTMLParagraphElement, { entry: string; duration: number }>(function DiaryParagraph({ entry, duration }, ref) {
+const DiaryCopy = forwardRef<HTMLDivElement, { entry: string; duration: number }>(function DiaryCopy({ entry, duration }, ref) {
   const present = useIsPresent();
-  return <motion.p ref={ref} aria-hidden={!present} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }} transition={{ duration, ease: 'linear' }}>{entry}</motion.p>;
+  const sections = entry.trim().split(/\r?\n(?:[ \t]*\r?\n)+/);
+  return <motion.div ref={ref} className="photography-diary-copy" aria-hidden={!present}
+    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+    transition={{ duration, ease: 'linear' }}>
+    {sections.map((section, sectionIndex) => <div className="photography-diary-section" key={sectionIndex}>
+      {section.split(/\r?\n/).map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
+    </div>)}
+  </motion.div>;
 });
 
 function PhotoDiary({ photo, index, photos, onSelect, onStep, initialFocus, scrollPositions, onPositionChange }: {
@@ -121,7 +127,7 @@ function PhotoDiary({ photo, index, photos, onSelect, onStep, initialFocus, scro
         aria-label={entry ? `${photo.title} diary, scroll to read` : undefined}>
         <div className="photography-diary-text">
           <AnimatePresence initial={false}>
-            {entry && <DiaryParagraph key={photo.id} entry={entry} duration={duration} />}
+            {entry && <DiaryCopy key={photo.id} entry={entry} duration={duration} />}
           </AnimatePresence>
         </div>
       </div>

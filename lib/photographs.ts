@@ -34,7 +34,8 @@ export const photographs: Photograph[] = [
   photograph('dongqian_lake', 'Dongqian Lake', 'A quiet horizon over Dongqian Lake', 2560, 1707, 3402, 2268),
   photograph('unnc', 'UNNC', 'Sunlight falling through grass at UNNC', 1766, 1178, 1766, 1178),
   photograph('the_soa', 'The SOA', 'Jellyfish drifting through an illuminated aquarium', 3402, 2268, 3402, 2268),
+  photograph('qingdao', 'Qingdao', 'Silhouettes gathered by the waterfront beneath a sunset skyline in Qingdao', 2500, 1667, 2500, 1667),
 ];
 
-const heroOrder = ['zibo', 'sanya', 'the_soa', 'the_north_bund', 'yantai', 'dongqian_lake', 'unnc'];
+const heroOrder = ['zibo', 'sanya', 'the_soa', 'the_north_bund', 'yantai', 'dongqian_lake', 'unnc', 'qingdao'];
 export const heroPhotographs = heroOrder.map((id) => photographs.find((photo) => photo.id === id)!);

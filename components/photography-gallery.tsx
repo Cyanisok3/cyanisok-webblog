@@ -104,15 +104,18 @@ export function PhotographyGallery({ photos, onActiveIndexChange }: { photos: Ph
 
   return (
     <>
-      <ol className="photography-grid">
-        {photos.map((item, index) => <PhotoCard key={item.id} photo={item} index={index}
-          onOpen={(trigger) => { returnFocus.current = trigger; setLightbox({ open: true, index }); }}
-          onEnter={(kind) => {
-            if (kind === 'focus' && Date.now() - lastPointer.current < 300) return;
-            if (kind === 'focus') setFocused(index); else setHovered(index);
-          }}
-          onLeave={(kind) => kind === 'focus' ? setFocused(null) : setHovered(null)} />)}
-      </ol>
+      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- The scroll region needs keyboard scrolling without focusing a photo. */}
+      <section className="photography-gallery-scroll" aria-label="Photograph gallery" tabIndex={0}>
+        <ol className="photography-grid">
+          {photos.map((item, index) => <PhotoCard key={item.id} photo={item} index={index}
+            onOpen={(trigger) => { returnFocus.current = trigger; setLightbox({ open: true, index }); }}
+            onEnter={(kind) => {
+              if (kind === 'focus' && Date.now() - lastPointer.current < 300) return;
+              if (kind === 'focus') setFocused(index); else setHovered(index);
+            }}
+            onLeave={(kind) => kind === 'focus' ? setFocused(null) : setHovered(null)} />)}
+        </ol>
+      </section>
       <Dialog.Root open={lightbox.open} onOpenChange={(open) => setLightbox((current) => ({ ...current, open }))}>
         <Dialog.Portal>
           <Dialog.Backdrop className="photography-lightbox-backdrop" />

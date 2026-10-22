@@ -56,6 +56,12 @@
 .photography-ascii-preview > p { margin: 12px 0 0; font: 10px/1.5 var(--mono); text-transform: uppercase; }
 .photography-ascii-preview > .photography-ascii-scrambled { letter-spacing: 0.14em; color: #706f69; }
 .photography-afterword { margin: 76px 0 0; color: #b6b5ae; font-size: 14px; line-height: 1.25; }
+.photography-gallery-scroll { min-width: 0; min-height: 0; align-self: start; }
+.photography-gallery-scroll:focus-visible { outline: 1px solid #b8b6ad; outline-offset: 4px; }
+@media (min-width: 1101px) {
+  .photography-gallery-scroll { max-height: calc(100dvh - 64px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: #56564f transparent; scrollbar-gutter: stable; }
+  .photography-index ul { max-height: 120px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #56564f transparent; }
+}
 .photography-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 54px 24px; list-style: none; padding: 0 0 128px; margin: 0; }
 .photography-item { min-width: 0; }
 .photography-item:nth-child(3n + 1) { transform: translateY(32px); }

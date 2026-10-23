@@ -31,4 +31,11 @@ What sounded like earnest lecturing from him was, in his own mind, nothing more 
 
   sanya: 
 ``,
+
+  qingdao:
+`The silhouettes of the crowd melt into the last light of sunset. You sense more eyes behind you, drawing your gaze toward the horizon. 
+
+The sea wind howls, mingling with the restless murmur of voices in the background. You try to stand still for a moment, but feel yourself swept along by an unseen tide. You watch the waves rise and curl, and think of all those nights when, on the verge of waking from a dream, your thoughts jolted you upright. Then you come to your senses, only to find that nothing remains. 
+
+The crowd surges back and forth, yet never breaks its silence.`,
 };

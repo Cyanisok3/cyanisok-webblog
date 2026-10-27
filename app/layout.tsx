@@ -2,12 +2,17 @@ import type { Metadata } from 'next';
 import 'katex/dist/katex.min.css';
 import './globals.css';
 
+const siteIcon = '/PINTR.svg?v=20261027';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://cyanisok.cn'),
   title: 'Qingyang Liu | 刘清扬',
   description: 'Writing about systems, agents, research, and ways of seeing.',
   authors: [{ name: 'Cyan Liu' }],
-  icons: { icon: { url: '/PINTR.svg', type: 'image/svg+xml' } },
+  icons: {
+    icon: { url: siteIcon, type: 'image/svg+xml' },
+    shortcut: siteIcon,
+  },
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

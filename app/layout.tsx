@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   },
   description: 'Writing about systems, agents, research, and ways of seeing.',
   authors: [{ name: 'Cyan Liu' }],
+  icons: { icon: { url: '/PINTR.svg', type: 'image/svg+xml' } },
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

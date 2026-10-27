@@ -6,7 +6,7 @@ import { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState }
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/react';
 import { Dialog } from '@base-ui/react/dialog';
 import type { Photograph } from '@/lib/photographs';
-import { photographyDiaries } from '@/lib/photography-diaries';
+import { photographyDiaries, photographyDiariesZh, photographyTitlesZh } from '@/lib/photography-diaries';
 import { LightboxGlyphField } from '@/components/lightbox-glyph-field';
 
 const glyphPhotoIds = new Set(['zibo', 'the_north_bund', 'sanya', 'unnc']);
@@ -61,10 +61,10 @@ function LightboxImage({ photo, active, closeHint }: { photo: Photograph; active
   );
 }
 
-const DiaryCopy = forwardRef<HTMLDivElement, { entry: string; duration: number }>(function DiaryCopy({ entry, duration }, ref) {
+const DiaryCopy = forwardRef<HTMLDivElement, { entry: string; duration: number; language: 'en' | 'zh' }>(function DiaryCopy({ entry, duration, language }, ref) {
   const present = useIsPresent();
   const sections = entry.trim().split(/\r?\n(?:[ \t]*\r?\n)+/);
-  return <motion.div ref={ref} className="photography-diary-copy" aria-hidden={!present}
+  return <motion.div ref={ref} className="photography-diary-copy" lang={language === 'zh' ? 'zh-CN' : 'en'} aria-hidden={!present}
     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     transition={{ duration, ease: 'linear' }}>
     {sections.map((section, sectionIndex) => <div className="photography-diary-section" key={sectionIndex}>
@@ -73,21 +73,23 @@ const DiaryCopy = forwardRef<HTMLDivElement, { entry: string; duration: number }
   </motion.div>;
 });
 
-function PhotoDiary({ photo, index, photos, onSelect, onStep, initialFocus, scrollPositions, onPositionChange }: {
+function PhotoDiary({ photo, index, photos, onSelect, initialFocus, scrollPositions, onPositionChange }: {
   photo: Photograph;
   index: number;
   photos: Photograph[];
   onSelect: (index: number) => void;
-  onStep: (direction: number) => void;
   initialFocus: React.RefObject<HTMLButtonElement | null>;
   scrollPositions: React.RefObject<Record<string, number>>;
   onPositionChange: (photoId: string, scrollTop: number) => void;
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
+  const [language, setLanguage] = useState<'en' | 'zh'>('en');
   const [hasMore, setHasMore] = useState(false);
   const reduceMotion = useReducedMotion();
   const duration = reduceMotion ? 0 : 0.25;
-  const entry = photographyDiaries[photo.id];
+  const entry = (language === 'zh' ? photographyDiariesZh : photographyDiaries)[photo.id];
+  const title = language === 'zh' ? photographyTitlesZh[photo.id] ?? photo.title : photo.title;
+  const entryKey = `${photo.id}:${language}`;
 
   const checkOverflow = useCallback(() => {
     const body = bodyRef.current;
@@ -97,37 +99,38 @@ function PhotoDiary({ photo, index, photos, onSelect, onStep, initialFocus, scro
   useLayoutEffect(() => {
     const body = bodyRef.current;
     if (!body) return;
-    body.scrollTop = scrollPositions.current[photo.id] ?? 0;
+    body.scrollTop = scrollPositions.current[entryKey] ?? 0;
     const frame = window.requestAnimationFrame(checkOverflow);
     const observer = new ResizeObserver(checkOverflow);
     observer.observe(body);
     const contentObserver = new MutationObserver(checkOverflow);
     contentObserver.observe(body, { childList: true, subtree: true });
     return () => { window.cancelAnimationFrame(frame); observer.disconnect(); contentObserver.disconnect(); };
-  }, [photo.id, checkOverflow, scrollPositions]);
+  }, [entryKey, checkOverflow, scrollPositions]);
 
   return (
     <aside className="photography-lightbox-editorial">
       <div className="photography-lightbox-heading">
         <p>PHOTOGRAPHY | DIARY</p>
-        <Dialog.Title className="sr-only">{photo.title}</Dialog.Title>
+        <Dialog.Title className="sr-only" lang={language === 'zh' ? 'zh-CN' : 'en'}>{title}</Dialog.Title>
         <div className="photography-diary-title" aria-hidden="true">
-          {photos.map((item) => <h2 key={item.id} className="photography-diary-title-size">{item.title}</h2>)}
+          {photos.map((item) => <h2 key={item.id} className="photography-diary-title-size" lang="en">{item.title}</h2>)}
+          {photos.map((item) => <h2 key={`${item.id}:zh`} className="photography-diary-title-size" lang="zh-CN">{photographyTitlesZh[item.id] ?? item.title}</h2>)}
           <AnimatePresence initial={false}>
-            <motion.h2 key={photo.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration, ease: 'linear' }}>{photo.title}</motion.h2>
+            <motion.h2 key={entryKey} lang={language === 'zh' ? 'zh-CN' : 'en'} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration, ease: 'linear' }}>{title}</motion.h2>
           </AnimatePresence>
         </div>
       </div>
       <div ref={bodyRef} className={`photography-diary${hasMore ? ' has-more' : ''}`}
         onScroll={() => {
-          if (bodyRef.current) onPositionChange(photo.id, bodyRef.current.scrollTop);
+          if (bodyRef.current) onPositionChange(entryKey, bodyRef.current.scrollTop);
           checkOverflow();
         }} tabIndex={entry ? 0 : -1} role={entry ? 'region' : undefined}
-        aria-label={entry ? `${photo.title} diary, scroll to read` : undefined}>
+        aria-label={entry ? `${title} diary, scroll to read` : undefined}>
         <div className="photography-diary-text">
           <AnimatePresence initial={false}>
-            {entry && <DiaryCopy key={photo.id} entry={entry} duration={duration} />}
+            {entry && <DiaryCopy key={entryKey} entry={entry} duration={duration} language={language} />}
           </AnimatePresence>
         </div>
       </div>
@@ -144,9 +147,11 @@ function PhotoDiary({ photo, index, photos, onSelect, onStep, initialFocus, scro
       </nav>
       <div className="photography-lightbox-bottom">
         <span>SCROLL TO EXPLORE</span>
-        <div className="photography-lightbox-arrows">
-          <button type="button" aria-label="Previous photograph" onClick={() => onStep(-1)}>↑</button>
-          <button type="button" aria-label="Next photograph" onClick={() => onStep(1)}>↓</button>
+        <div className="photography-lightbox-language">
+          <button type="button" lang={language === 'en' ? 'zh-CN' : 'en'}
+            onClick={() => setLanguage((current) => current === 'en' ? 'zh' : 'en')}>
+            {language === 'en' ? '显示中文' : 'English ver.'}
+          </button>
         </div>
       </div>
     </aside>
@@ -271,7 +276,7 @@ export function PhotographyLightbox({ photos, initialIndex, onClose, returnFocus
       </Dialog.Description>
       <div className="photography-lightbox-editorial-wrap">
         <PhotoDiary photo={photos[active]} index={active} photos={photos}
-          onSelect={goTo} onStep={step} initialFocus={indexFocus} scrollPositions={diaryPositions}
+          onSelect={goTo} initialFocus={indexFocus} scrollPositions={diaryPositions}
           onPositionChange={(id, scrollTop) => { diaryPositions.current[id] = scrollTop; }} />
       </div>
       <section ref={railRef} className="photography-lightbox-rail"

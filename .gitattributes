@@ -1,0 +1,3 @@
+# Keep editable font sources in Git, but deploy only the web font subset.
+/public/fonts/zhonghua export-ignore
+/public/fonts/zhonghua.ttf export-ignore

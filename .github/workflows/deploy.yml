@@ -50,23 +50,27 @@ jobs:
           release_dir="$deploy_root/releases/$GITHUB_SHA-$GITHUB_RUN_ATTEMPT"
 
           mkdir -p "$release_dir"
-          # VPS -> GitHub direct bandwidth is ~100KB/s, so a 31MB tarball
-          # cannot finish within a 300s window (git clone and codeload both
-          # time out). Public proxy mirrors are ~10MB/s and are tried first.
+          # Bound each mirror attempt and validate the archive before extraction.
           archive="$RUNNER_TEMP/cyanisok-webblog-$GITHUB_SHA.tar.gz"
           fetch() {
-            local base="$1"
-            curl -fsSL --retry 3 --retry-all-errors \
-              --connect-timeout 20 --max-time 300 \
-              -o "$archive" \
-              "$base/https://github.com/Cyanisok3/cyanisok-webblog/archive/$GITHUB_SHA.tar.gz"
+            local url="$1"
+            local max_time="${2:-180}"
+            echo "Downloading source: $url"
+            if curl -fsSL --retry 0 \
+              --connect-timeout 10 --max-time "$max_time" \
+              --speed-limit 16384 --speed-time 30 \
+              -o "$archive.part" "$url" && tar tzf "$archive.part" >/dev/null; then
+              mv "$archive.part" "$archive"
+              return 0
+            fi
+            rm -f "$archive.part"
+            return 1
           }
-          if ! fetch "https://gh-proxy.com" && ! fetch "https://ghfast.top"; then
-            echo "proxy mirrors failed, falling back to codeload direct"
-            curl -fsSL --retry 2 --retry-all-errors -C - \
-              --connect-timeout 20 --max-time 900 \
-              -o "$archive" \
-              "https://codeload.github.com/Cyanisok3/cyanisok-webblog/tar.gz/$GITHUB_SHA"
+          if ! fetch "https://ghfast.top/https://github.com/Cyanisok3/cyanisok-webblog/archive/$GITHUB_SHA.tar.gz" && \
+             ! fetch "https://gh-proxy.com/https://github.com/Cyanisok3/cyanisok-webblog/archive/$GITHUB_SHA.tar.gz" && \
+             ! fetch "https://codeload.github.com/Cyanisok3/cyanisok-webblog/tar.gz/$GITHUB_SHA" 900; then
+            echo "All source download endpoints failed"
+            exit 1
           fi
           tar xzf "$archive" --strip-components=1 -C "$release_dir"
           rm "$archive"

@@ -7,6 +7,7 @@ import './about.css';
 
 const description = 'Meet Qingyang Liu — Cyanisok. A personal introduction, in a different light.';
 export const metadata: Metadata = {
+  title: 'About',
   description, alternates: { canonical: '/about' },
   openGraph: { type: 'website', url: 'https://cyanisok.cn/about', title: 'About · Cyanisok', description },
 };

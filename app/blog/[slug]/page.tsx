@@ -60,12 +60,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = getPost(slug);
-  if (!post) return {};
+  if (!post) return { title: 'Blog' };
 
   const image = post.image ? new URL(post.image, SITE_URL).toString() : null;
   const images = image ? [image] : [];
 
   return {
+    title: 'Blog',
     description: post.summary,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {

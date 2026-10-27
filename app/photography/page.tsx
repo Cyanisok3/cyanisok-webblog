@@ -8,6 +8,7 @@ import './photography.css';
 const description = 'A personal photo archive of places, passing light, and the days in between.';
 
 export const metadata: Metadata = {
+  title: 'Photography',
   description,
   alternates: { canonical: '/photography' },
   openGraph: { type: 'website', url: 'https://cyanisok.cn/photography', title: 'Photography', description },

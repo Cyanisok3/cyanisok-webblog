@@ -6,7 +6,10 @@ const siteIcon = '/PINTR.svg?v=20261027';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://cyanisok.cn'),
-  title: 'Qingyang Liu | 刘清扬',
+  title: {
+    default: 'Qingyang | 刘清扬',
+    template: 'Qingyang | %s',
+  },
   description: 'Writing about systems, agents, research, and ways of seeing.',
   authors: [{ name: 'Cyan Liu' }],
   icons: {

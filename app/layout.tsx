@@ -4,10 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://cyanisok.cn'),
-  title: {
-    default: '@Cyanisok · Personal Archive',
-    template: '%s · @Cyanisok',
-  },
+  title: 'Qingyang Liu | 刘清扬',
   description: 'Writing about systems, agents, research, and ways of seeing.',
   authors: [{ name: 'Cyan Liu' }],
   icons: { icon: { url: '/PINTR.svg', type: 'image/svg+xml' } },

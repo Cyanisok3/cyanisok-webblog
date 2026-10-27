@@ -6,7 +6,6 @@ import { Reveal } from '@/components/reveal';
 import { getPosts } from '@/lib/posts';
 
 export const metadata: Metadata = {
-  title: 'Blog',
   description: 'Long-form notes on systems, agents, algorithms, research, and visual practice.',
   alternates: { canonical: '/blog' },
   openGraph: {

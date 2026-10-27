@@ -150,7 +150,7 @@ function PhotoDiary({ photo, index, photos, onSelect, initialFocus, scrollPositi
         <div className="photography-lightbox-language">
           <button type="button" lang={language === 'en' ? 'zh-CN' : 'en'}
             onClick={() => setLanguage((current) => current === 'en' ? 'zh' : 'en')}>
-            {language === 'en' ? '显示中文' : 'English ver.'}
+            <span>{language === 'en' ? '显示中文' : 'English ver.'}</span>
           </button>
         </div>
       </div>

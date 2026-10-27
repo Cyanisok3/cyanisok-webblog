@@ -113,10 +113,21 @@
 .photography-lightbox-index { display: flex; flex: none; gap: 6px; margin-left: -8px; }
 .photography-lightbox-index button { position: relative; display: grid; place-items: center; width: 44px; height: 44px; flex: 0 1 44px; min-width: 0; padding: 0; border: 0; background: none; color: #a6a59d; font: 11px/1 var(--mono); cursor: pointer; }
 .photography-lightbox-index button[data-current="true"] { color: #f8f6ef; }
-.photography-lightbox-index button[data-current="true"]::after { position: absolute; bottom: 0; left: 50%; width: min(28px, calc(100% - 8px)); height: 1px; background: currentColor; content: ''; transform: translateX(-50%); }
+.photography-lightbox-index button::after { position: absolute; bottom: 0; left: 50%; width: min(28px, calc(100% - 8px)); height: 1px; background: currentColor; opacity: 0.7; content: ''; transform: translateX(-50%) scale(0, 0.75); transform-origin: right center; transition: transform 260ms ease, opacity 260ms ease; }
+.photography-lightbox-index button[data-current="true"]::after { opacity: 1; transform: translateX(-50%) scale(1); transform-origin: left center; }
+.photography-lightbox-index button:not([data-current="true"]):focus-visible::after { transform: translateX(-50%) scale(1, 0.75); transform-origin: left center; }
+@media (hover: hover) and (pointer: fine) {
+  .photography-lightbox-index button:not([data-current="true"]):hover::after { transform: translateX(-50%) scale(1, 0.75); transform-origin: left center; }
+}
 .photography-lightbox-bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex: none; margin-top: 32px; color: #a6a59d; font: 11px/1.5 var(--mono); }
 .photography-lightbox-language { display: flex; align-items: center; }
 .photography-lightbox-language button { display: grid; place-items: center; width: 146px; height: 50px; padding: 0 6px; border: 0; background: none; color: #f8f6ef; font: 400 17px/1 'Zhonghua', var(--serif); cursor: pointer; text-decoration: none; }
+.photography-lightbox-language button > span { position: relative; }
+.photography-lightbox-language button > span::after { position: absolute; right: 0; bottom: -6px; left: 0; height: 1px; background: currentColor; opacity: 0.7; content: ''; transform: scale(0, 0.75); transform-origin: right center; transition: transform 260ms ease; }
+.photography-lightbox-language button:focus-visible > span::after { transform: scale(1, 0.75); transform-origin: left center; }
+@media (hover: hover) and (pointer: fine) {
+  .photography-lightbox-language button:hover > span::after { transform: scale(1, 0.75); transform-origin: left center; }
+}
 .photography-lightbox-rail { min-width: 0; min-height: 0; margin-right: 24px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; opacity: 0; }
 .photography-lightbox-rail[data-positioned="true"] { opacity: 1; }
 .photography-lightbox-rail::-webkit-scrollbar { display: none; }

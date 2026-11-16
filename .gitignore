@@ -22,6 +22,7 @@
 # misc
 .DS_Store
 *.pem
+/cyanisok.cn_nginx/
 
 # debug
 npm-debug.log*
